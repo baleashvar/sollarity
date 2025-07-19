@@ -1,0 +1,114 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { formatCurrency, formatPercentage } from '../../utils/formatters';
+
+const CoinTable = ({ coins }) => {
+  if (!coins || coins.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+        No coins found matching your criteria.
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead className="bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Coin
+            </th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Price
+            </th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              24h
+            </th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Market Cap
+            </th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Liquidity
+            </th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Risk
+            </th>
+          </tr>
+        </thead>
+        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          {coins.map((coin) => (
+            <tr key={coin.address} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+              <td className="px-6 py-4 whitespace-nowrap">
+                <Link to={`/coin/${coin.address}`} className="flex items-center">
+                  {coin.image ? (
+                    <img 
+                      src={coin.image} 
+                      alt={coin.name} 
+                      className="w-8 h-8 rounded-full mr-3"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = '/placeholder-coin.png';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 mr-3 flex items-center justify-center">
+                      {coin.symbol.substring(0, 1)}
+                    </div>
+                  )}
+                  <div>
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      {coin.name}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {coin.symbol}
+                    </div>
+                  </div>
+                </Link>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                {formatCurrency(coin.price)}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <span className={`${
+                  coin.priceChange24h >= 0 
+                    ? 'text-green-600 dark:text-green-400' 
+                    : 'text-red-600 dark:text-red-400'
+                }`}>
+                  {formatPercentage(coin.priceChange24h)}
+                </span>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                {formatCurrency(coin.marketCap)}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <div>
+                  {formatCurrency(coin.liquidityUSD)}
+                  {coin.lpBurned && (
+                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
+                      LP Burned
+                    </span>
+                  )}
+                </div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  coin.scamProbability < 0.3
+                    ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100'
+                    : coin.scamProbability < 0.7
+                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100'
+                    : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100'
+                }`}>
+                  {coin.scamProbability < 0.3 ? 'Low Risk' : 
+                   coin.scamProbability < 0.7 ? 'Medium Risk' : 'High Risk'}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default CoinTable;
