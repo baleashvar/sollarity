@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { getCoin, getCoinHistory } from '../services/api';
+import { formatCurrency, formatPercentage } from '../utils/formatters';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 const CoinDetail = () => {
   const { address } = useParams();
@@ -14,27 +17,12 @@ const CoinDetail = () => {
       try {
         setLoading(true);
         
-        // In a real app, this would be an environment variable
-        const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-        
         // Fetch coin details
-        const coinResponse = await fetch(`${API_URL}/coins/${address}`);
-        
-        if (!coinResponse.ok) {
-          throw new Error('Failed to fetch coin details');
-        }
-        
-        const coinData = await coinResponse.json();
+        const coinData = await getCoin(address);
         setCoin(coinData);
         
         // Fetch price history
-        const historyResponse = await fetch(`${API_URL}/coins/${address}/history?timeframe=${timeframe}`);
-        
-        if (!historyResponse.ok) {
-          throw new Error('Failed to fetch price history');
-        }
-        
-        const historyData = await historyResponse.json();
+        const historyData = await getCoinHistory(address, timeframe);
         setPriceHistory(historyData);
         
         setError(null);

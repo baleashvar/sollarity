@@ -1,245 +1,325 @@
 #!/usr/bin/env python3
 """
-Sollarity - Memecoin Risk Analyzer
-This script analyzes memecoin data to determine risk factors and scam probability.
+Solana Memecoin Data Analyzer
+
+This script analyzes scraped memecoin data to:
+- Identify potential scams
+- Calculate risk scores
+- Generate trend reports
+- Identify promising investment opportunities
+
+Usage:
+    python analyzer.py --days 7
 """
 
 import os
+import sys
 import json
 import logging
-import pandas as pd
+import argparse
+import pymongo
 import numpy as np
+import pandas as pd
 from datetime import datetime, timedelta
-from pymongo import MongoClient
 from dotenv import load_dotenv
-
-# Load environment variables
-env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', '.env')
-load_dotenv(env_path)
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("analyzer.log"),
+        logging.StreamHandler(sys.stdout)
+    ]
 )
-logger = logging.getLogger('sollarity-analyzer')
+logger = logging.getLogger("memecoin_analyzer")
+
+# Load environment variables from parent directory
+load_dotenv(Path(__file__).parent.parent / "config" / ".env")
 
 # MongoDB connection
-MONGO_URI = os.getenv('MONGO_URI')
-if not MONGO_URI:
-    logger.error("MongoDB URI not found in environment variables. Check your .env file.")
-    raise ValueError("MongoDB URI not found in environment variables")
+MONGO_URI = os.getenv("MONGO_URI")
 
-logger.info(f"Connecting to MongoDB at {MONGO_URI.split('@')[1] if '@' in MONGO_URI else 'localhost'}")
-try:
-    client = MongoClient(MONGO_URI)
-    # Test connection
-    client.admin.command('ping')
-    logger.info("MongoDB connection successful")
-    db = client.get_database()
-except Exception as e:
-    logger.error(f"MongoDB connection failed: {str(e)}")
-    raise
+class MemeAnalyzer:
+    def __init__(self):
+        self.db = None
+        self.coins_df = None
+        self.history_df = None
 
-def calculate_risk_score(coin_data):
-    """
-    Calculate a risk score for a memecoin based on various factors.
-    
-    Args:
-        coin_data (dict): Dictionary containing coin metrics
+    def connect_db(self):
+        """Connect to MongoDB database"""
+        if MONGO_URI:
+            try:
+                client = pymongo.MongoClient(MONGO_URI)
+                self.db = client.sollarity
+                logger.info("Connected to MongoDB")
+                return True
+            except Exception as e:
+                logger.error(f"MongoDB connection error: {e}")
+        return False
+
+    def load_data(self, days=7):
+        """Load coin data from database into pandas DataFrame"""
+        if not self.db:
+            logger.error("Database not connected")
+            return False
         
-    Returns:
-        tuple: (risk_score, risk_factors)
-    """
-    risk_score = 0.0
-    risk_factors = []
-    
-    # Check for low liquidity
-    if coin_data.get('liquidityUSD', 0) < 10000:  # Less than $10k liquidity
-        risk_factor_weight = min(0.3, 3000 / max(coin_data.get('liquidityUSD', 1), 1))
-        risk_score += risk_factor_weight
-        risk_factors.append({
-            "factor": "Low liquidity",
-            "description": f"Only ${coin_data.get('liquidityUSD', 0):,.2f} in liquidity",
-            "severity": "high" if risk_factor_weight > 0.2 else "medium"
-        })
-    
-    # Check for high insider ownership
-    insider_percentage = coin_data.get('insiderPercentage', 0)
-    if insider_percentage > 15:
-        risk_factor_weight = min(0.4, (insider_percentage - 15) / 85 * 0.4)
-        risk_score += risk_factor_weight
-        risk_factors.append({
-            "factor": "High insider ownership",
-            "description": f"Top wallet owns {insider_percentage:.2f}% of supply",
-            "severity": "high" if insider_percentage > 30 else "medium"
-        })
-    
-    # Check if LP is not burned
-    if not coin_data.get('lpBurned', False):
-        risk_score += 0.15
-        risk_factors.append({
-            "factor": "LP not burned",
-            "description": "Liquidity provider tokens are not burned",
-            "severity": "medium"
-        })
-    
-    # Check for low holder count
-    holder_count = coin_data.get('holderCount', 0)
-    if holder_count < 100:
-        risk_factor_weight = min(0.2, (100 - holder_count) / 100 * 0.2)
-        risk_score += risk_factor_weight
-        risk_factors.append({
-            "factor": "Few holders",
-            "description": f"Only {holder_count} unique holders",
-            "severity": "medium" if holder_count < 50 else "low"
-        })
-    
-    # Check for suspicious price movements
-    price_change = coin_data.get('priceChange24h', 0)
-    if price_change < -0.5:  # More than 50% drop in 24h
-        risk_score += 0.25
-        risk_factors.append({
-            "factor": "Significant price drop",
-            "description": f"{price_change * 100:.2f}% price drop in 24h",
-            "severity": "high"
-        })
-    
-    # Cap risk score at 1.0
-    risk_score = min(risk_score, 1.0)
-    
-    return risk_score, risk_factors
-
-def analyze_historical_patterns(coin_address):
-    """
-    Analyze historical price patterns for a coin to detect manipulation.
-    
-    Args:
-        coin_address (str): The coin's contract address
-        
-    Returns:
-        dict: Analysis results
-    """
-    # Get historical price data from MongoDB
-    price_history = list(db.PriceHistory.find(
-        {"coinAddress": coin_address},
-        {"_id": 0, "timestamp": 1, "price": 1, "volume": 1}
-    ).sort("timestamp", 1))
-    
-    if not price_history or len(price_history) < 5:
-        return {
-            "hasEnoughData": False,
-            "manipulationDetected": False,
-            "pumpAndDumpPattern": False,
-            "volatility": 0
-        }
-    
-    # Convert to pandas DataFrame for analysis
-    df = pd.DataFrame(price_history)
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
-    df = df.set_index('timestamp')
-    
-    # Calculate volatility
-    if len(df) > 1:
-        returns = df['price'].pct_change().dropna()
-        volatility = returns.std() * np.sqrt(len(returns))
-    else:
-        volatility = 0
-    
-    # Detect pump and dump patterns (simplified)
-    # Look for rapid price increase followed by rapid decrease
-    if len(df) >= 10:
-        max_price_idx = df['price'].idxmax()
-        max_price = df.loc[max_price_idx, 'price']
-        
-        # Check if max price is at least 2x the starting price
-        start_price = df['price'].iloc[0]
-        if max_price >= start_price * 2:
-            # Check if price dropped significantly after the peak
-            after_peak = df.loc[df.index > max_price_idx]
-            if len(after_peak) > 0:
-                min_after_peak = after_peak['price'].min()
-                if min_after_peak <= max_price * 0.5:
-                    pump_and_dump = True
-                else:
-                    pump_and_dump = False
-            else:
-                pump_and_dump = False
-        else:
-            pump_and_dump = False
-    else:
-        pump_and_dump = False
-    
-    return {
-        "hasEnoughData": True,
-        "manipulationDetected": volatility > 0.5,  # High volatility threshold
-        "pumpAndDumpPattern": pump_and_dump,
-        "volatility": volatility
-    }
-
-def update_coin_risk_scores():
-    """Update risk scores for all coins in the database"""
-    logger.info("Starting risk score update for all coins")
-    
-    # Get all active coins
-    coins = list(db.Coin.find({"isActive": True}))
-    logger.info(f"Found {len(coins)} active coins to analyze")
-    
-    for coin in coins:
         try:
-            # Analyze historical patterns
-            historical_analysis = analyze_historical_patterns(coin['address'])
+            # Get current coins
+            coins = list(self.db.coins.find({}))
+            self.coins_df = pd.DataFrame(coins)
             
-            # Calculate risk score
-            risk_score, risk_factors = calculate_risk_score(coin)
+            # Get historical data
+            cutoff_date = datetime.now() - timedelta(days=days)
+            history = list(self.db.coin_history.find({"timestamp": {"$gte": cutoff_date}}))
+            self.history_df = pd.DataFrame(history)
             
-            # Add additional risk factors from historical analysis
-            if historical_analysis.get('hasEnoughData'):
-                if historical_analysis.get('pumpAndDumpPattern'):
-                    risk_score = min(risk_score + 0.3, 1.0)
-                    risk_factors.append({
-                        "factor": "Pump and dump pattern",
-                        "description": "Price history shows pump and dump pattern",
-                        "severity": "high"
-                    })
-                
-                if historical_analysis.get('manipulationDetected'):
-                    risk_score = min(risk_score + 0.2, 1.0)
-                    risk_factors.append({
-                        "factor": "Unusual volatility",
-                        "description": f"Abnormal price volatility detected: {historical_analysis.get('volatility'):.2f}",
-                        "severity": "medium"
-                    })
-            
-            # Update the coin in the database
-            db.Coin.update_one(
-                {"address": coin['address']},
-                {
-                    "$set": {
-                        "scamProbability": risk_score,
-                        "riskFactors": risk_factors,
-                        "lastUpdated": datetime.now()
-                    }
-                }
-            )
-            
-            logger.info(f"Updated risk score for {coin['symbol']}: {risk_score:.2f}")
-            
+            logger.info(f"Loaded {len(self.coins_df)} coins and {len(self.history_df)} historical records")
+            return True
         except Exception as e:
-            logger.error(f"Error analyzing coin {coin.get('symbol')}: {str(e)}")
-    
-    logger.info("Completed risk score update for all coins")
+            logger.error(f"Error loading data: {e}")
+            return False
+
+    def identify_scams(self):
+        """Identify potential scam tokens based on various indicators"""
+        if self.coins_df is None or len(self.coins_df) == 0:
+            logger.error("No coin data available")
+            return []
+        
+        # Filter coins with high scam probability
+        high_risk = self.coins_df[self.coins_df['scamProbability'] > 0.7].copy()
+        
+        # Additional scam indicators
+        scam_indicators = []
+        for _, coin in high_risk.iterrows():
+            indicators = []
+            
+            # Check for extremely high concentration of holders
+            if coin.get('holders', 0) < 10:
+                indicators.append("Very few holders")
+            
+            # Check for LP not burned
+            if not coin.get('lpBurned', False):
+                indicators.append("LP not burned")
+            
+            # Check for missing website/socials
+            if not coin.get('website') and not coin.get('twitter') and not coin.get('telegram'):
+                indicators.append("No website or social media")
+            
+            # Check for suspicious price movements
+            if coin.get('priceChange24h', 0) > 500:  # 500% in 24h is suspicious
+                indicators.append("Extreme price increase")
+            
+            # Add to results if we have indicators
+            if indicators:
+                scam_indicators.append({
+                    "address": coin['address'],
+                    "name": coin.get('name', 'Unknown'),
+                    "symbol": coin.get('symbol', '???'),
+                    "scamProbability": coin['scamProbability'],
+                    "indicators": indicators
+                })
+        
+        logger.info(f"Identified {len(scam_indicators)} potential scam tokens")
+        return scam_indicators
+
+    def find_trending_coins(self):
+        """Find trending coins based on price, volume, and social metrics"""
+        if self.coins_df is None or len(self.coins_df) == 0:
+            logger.error("No coin data available")
+            return []
+        
+        # Filter out likely scams
+        legitimate_coins = self.coins_df[self.coins_df['scamProbability'] < 0.5].copy()
+        
+        # Calculate trend score based on price change and volume
+        legitimate_coins['trendScore'] = (
+            legitimate_coins['priceChange24h'].fillna(0) * 0.6 + 
+            (legitimate_coins['volume24h'] / legitimate_coins['marketCap'].clip(lower=1)).fillna(0) * 0.4
+        )
+        
+        # Sort by trend score
+        trending = legitimate_coins.sort_values('trendScore', ascending=False).head(10)
+        
+        # Format results
+        trending_coins = []
+        for _, coin in trending.iterrows():
+            trending_coins.append({
+                "address": coin['address'],
+                "name": coin.get('name', 'Unknown'),
+                "symbol": coin.get('symbol', '???'),
+                "price": coin.get('price', 0),
+                "priceChange24h": coin.get('priceChange24h', 0),
+                "marketCap": coin.get('marketCap', 0),
+                "volume24h": coin.get('volume24h', 0),
+                "trendScore": coin.get('trendScore', 0)
+            })
+        
+        logger.info(f"Identified {len(trending_coins)} trending coins")
+        return trending_coins
+
+    def find_safe_investments(self):
+        """Find relatively safe investment opportunities"""
+        if self.coins_df is None or len(self.coins_df) == 0:
+            logger.error("No coin data available")
+            return []
+        
+        # Filter for safer coins
+        safe_coins = self.coins_df[
+            (self.coins_df['scamProbability'] < 0.3) & 
+            (self.coins_df['lpBurned'] == True) &
+            (self.coins_df['marketCap'] > 100000)  # At least $100k market cap
+        ].copy()
+        
+        # Calculate safety score
+        safe_coins['safetyScore'] = (
+            (1 - safe_coins['scamProbability']) * 0.5 +
+            (safe_coins['holders'].clip(lower=1, upper=1000) / 1000) * 0.3 +
+            (safe_coins['liquidityUSD'] / safe_coins['marketCap'].clip(lower=1)).fillna(0).clip(upper=1) * 0.2
+        )
+        
+        # Sort by safety score
+        safest = safe_coins.sort_values('safetyScore', ascending=False).head(10)
+        
+        # Format results
+        safe_investments = []
+        for _, coin in safest.iterrows():
+            safe_investments.append({
+                "address": coin['address'],
+                "name": coin.get('name', 'Unknown'),
+                "symbol": coin.get('symbol', '???'),
+                "price": coin.get('price', 0),
+                "marketCap": coin.get('marketCap', 0),
+                "holders": coin.get('holders', 0),
+                "safetyScore": coin.get('safetyScore', 0)
+            })
+        
+        logger.info(f"Identified {len(safe_investments)} safe investment opportunities")
+        return safe_investments
+
+    def generate_market_report(self):
+        """Generate overall market report for memecoins"""
+        if self.coins_df is None or len(self.coins_df) == 0:
+            logger.error("No coin data available")
+            return None
+        
+        try:
+            # Calculate market statistics
+            total_market_cap = self.coins_df['marketCap'].sum()
+            total_volume_24h = self.coins_df['volume24h'].sum()
+            avg_price_change = self.coins_df['priceChange24h'].mean()
+            
+            # Count coins by risk category
+            low_risk = len(self.coins_df[self.coins_df['scamProbability'] < 0.3])
+            medium_risk = len(self.coins_df[(self.coins_df['scamProbability'] >= 0.3) & 
+                                          (self.coins_df['scamProbability'] < 0.7)])
+            high_risk = len(self.coins_df[self.coins_df['scamProbability'] >= 0.7])
+            
+            # Generate report
+            report = {
+                "timestamp": datetime.now(),
+                "totalCoins": len(self.coins_df),
+                "totalMarketCap": total_market_cap,
+                "totalVolume24h": total_volume_24h,
+                "avgPriceChange24h": avg_price_change,
+                "riskDistribution": {
+                    "lowRisk": low_risk,
+                    "mediumRisk": medium_risk,
+                    "highRisk": high_risk
+                }
+            }
+            
+            # Save report to database
+            if self.db:
+                self.db.market_reports.insert_one(report)
+                logger.info("Market report saved to database")
+            
+            return report
+        except Exception as e:
+            logger.error(f"Error generating market report: {e}")
+            return None
+
+    def save_analysis_results(self, results):
+        """Save analysis results to database"""
+        if not self.db:
+            logger.error("Database not connected")
+            return False
+        
+        try:
+            # Save trending coins
+            if 'trending' in results:
+                self.db.trending_coins.delete_many({})  # Clear previous results
+                if results['trending']:
+                    self.db.trending_coins.insert_many(results['trending'])
+            
+            # Save safe investments
+            if 'safe' in results:
+                self.db.safe_investments.delete_many({})  # Clear previous results
+                if results['safe']:
+                    self.db.safe_investments.insert_many(results['safe'])
+            
+            # Save scam alerts
+            if 'scams' in results:
+                self.db.scam_alerts.delete_many({})  # Clear previous results
+                if results['scams']:
+                    self.db.scam_alerts.insert_many(results['scams'])
+            
+            logger.info("Analysis results saved to database")
+            return True
+        except Exception as e:
+            logger.error(f"Error saving analysis results: {e}")
+            return False
+
+    def run(self, days=7):
+        """Run the full analysis pipeline"""
+        # Connect to database
+        if not self.connect_db():
+            return False
+        
+        # Load data
+        if not self.load_data(days):
+            return False
+        
+        # Run analyses
+        scams = self.identify_scams()
+        trending = self.find_trending_coins()
+        safe = self.find_safe_investments()
+        report = self.generate_market_report()
+        
+        # Compile results
+        results = {
+            "scams": scams,
+            "trending": trending,
+            "safe": safe,
+            "report": report
+        }
+        
+        # Save results
+        self.save_analysis_results(results)
+        
+        return results
 
 def main():
-    """Main function to run the analyzer"""
-    logger.info("Starting Sollarity memecoin analyzer")
+    parser = argparse.ArgumentParser(description="Analyze Solana memecoin data")
+    parser.add_argument("--days", type=int, default=7, help="Number of days of historical data to analyze")
+    args = parser.parse_args()
     
-    try:
-        update_coin_risk_scores()
-    except Exception as e:
-        logger.error(f"Error in main analyzer process: {str(e)}")
+    analyzer = MemeAnalyzer()
+    results = analyzer.run(args.days)
     
-    logger.info("Analyzer completed")
+    if results:
+        # Print summary
+        print(f"\nAnalysis Summary:")
+        print(f"- Identified {len(results['scams'])} potential scam tokens")
+        print(f"- Found {len(results['trending'])} trending coins")
+        print(f"- Recommended {len(results['safe'])} safer investment options")
+        
+        if results['report']:
+            print(f"\nMarket Overview:")
+            print(f"- Total Market Cap: ${results['report']['totalMarketCap']:,.2f}")
+            print(f"- 24h Volume: ${results['report']['totalVolume24h']:,.2f}")
+            print(f"- Avg 24h Price Change: {results['report']['avgPriceChange24h']:.2f}%")
 
 if __name__ == "__main__":
     main()

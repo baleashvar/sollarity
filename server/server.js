@@ -28,9 +28,15 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/sollarity',
 
 // Import routes
 const coinRoutes = require('./routes/coins');
+const testRoutes = require('./routes/test');
+const paypalRoutes = require('./routes/paypalRoutes');
+const scamAlertRoutes = require('./routes/scamAlerts');
 
 // Use routes
 app.use('/api/coins', coinRoutes);
+app.use('/api/test', testRoutes);
+app.use('/api/payments', paypalRoutes);
+app.use('/api/scam-alerts', scamAlertRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -46,7 +52,18 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Add a catch-all route for API routes that don't exist
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ message: 'API endpoint not found' });
 });
+
+// Start server
+try {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Test API at: http://localhost:${PORT}/api/test`);
+    console.log(`Health check at: http://localhost:${PORT}/health`);
+  });
+} catch (error) {
+  console.error('Failed to start server:', error);
+}

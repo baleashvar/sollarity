@@ -1,0 +1,12 @@
+{
+  "name": "sollarity",
+  "version": "1.0.0",
+  "description": "A website that provides insights and analysis about Solana-based meme coins, helping users identify legitimate investment opportunities and avoid scams.",
+  "main": "test-server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

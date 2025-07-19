@@ -13,25 +13,25 @@ const CoinTable = ({ coins }) => {
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead className="bg-gray-50 dark:bg-gray-700">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 border-collapse">
+        <thead className="bg-gray-100 dark:bg-gray-700">
           <tr>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b-2 border-gray-200 dark:border-gray-600">
               Coin
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b-2 border-gray-200 dark:border-gray-600">
               Price
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              24h
+            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b-2 border-gray-200 dark:border-gray-600">
+              24h %
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b-2 border-gray-200 dark:border-gray-600">
               Market Cap
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b-2 border-gray-200 dark:border-gray-600">
               Liquidity
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b-2 border-gray-200 dark:border-gray-600">
               Risk
             </th>
           </tr>
@@ -66,23 +66,23 @@ const CoinTable = ({ coins }) => {
                   </div>
                 </Link>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right font-medium">
                 {formatCurrency(coin.price)}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
                 <span className={`${
                   coin.priceChange24h >= 0 
                     ? 'text-green-600 dark:text-green-400' 
                     : 'text-red-600 dark:text-red-400'
-                }`}>
+                } font-medium`}>
                   {formatPercentage(coin.priceChange24h)}
                 </span>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
                 {formatCurrency(coin.marketCap)}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                <div>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
+                <div className="flex justify-end items-center">
                   {formatCurrency(coin.liquidityUSD)}
                   {coin.lpBurned && (
                     <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
@@ -91,16 +91,18 @@ const CoinTable = ({ coins }) => {
                   )}
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  coin.scamProbability < 0.3
-                    ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100'
-                    : coin.scamProbability < 0.7
-                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100'
-                    : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100'
-                }`}>
-                  {coin.scamProbability < 0.3 ? 'Low Risk' : 
-                   coin.scamProbability < 0.7 ? 'Medium Risk' : 'High Risk'}
+              <td className="px-6 py-4 whitespace-nowrap text-center">
+                <div className="flex justify-center">
+                  <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                    coin.scamProbability < 0.3
+                      ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100'
+                      : coin.scamProbability < 0.7
+                      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100'
+                      : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100'
+                  }`}>
+                    {coin.scamProbability < 0.3 ? 'Low Risk' : 
+                     coin.scamProbability < 0.7 ? 'Medium Risk' : 'High Risk'}
+                  </div>
                 </div>
               </td>
             </tr>

@@ -1,7 +1,7 @@
 /**
- * Format a number as currency
+ * Format a number as currency with appropriate suffixes
  * @param {number} value - The value to format
- * @returns {string} Formatted currency string
+ * @returns {string} - Formatted currency string
  */
 export const formatCurrency = (value) => {
   if (!value && value !== 0) return 'N/A';
@@ -21,9 +21,9 @@ export const formatCurrency = (value) => {
 };
 
 /**
- * Format a number as percentage
- * @param {number} value - The value to format
- * @returns {string} Formatted percentage string
+ * Format a number as a percentage
+ * @param {number} value - The value to format (e.g., 0.05 for 5%)
+ * @returns {string} - Formatted percentage string
  */
 export const formatPercentage = (value) => {
   if (!value && value !== 0) return 'N/A';
@@ -31,32 +31,41 @@ export const formatPercentage = (value) => {
 };
 
 /**
- * Format a date
+ * Format a date to a readable string
  * @param {string|Date} date - The date to format
- * @returns {string} Formatted date string
+ * @returns {string} - Formatted date string
  */
 export const formatDate = (date) => {
   if (!date) return 'N/A';
-  
   const dateObj = new Date(date);
-  return new Intl.DateTimeFormat('en-US', {
+  return dateObj.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit'
-  }).format(dateObj);
+  });
 };
 
 /**
- * Format an address to show only the first and last few characters
- * @param {string} address - The address to format
- * @param {number} chars - Number of characters to show at start and end
- * @returns {string} Formatted address
+ * Format a number with commas
+ * @param {number} value - The value to format
+ * @returns {string} - Formatted number string
  */
-export const formatAddress = (address, chars = 4) => {
-  if (!address) return '';
-  if (address.length <= chars * 2) return address;
-  
-  return `${address.substring(0, chars)}...${address.substring(address.length - chars)}`;
+export const formatNumber = (value) => {
+  if (!value && value !== 0) return 'N/A';
+  return value.toLocaleString('en-US');
+};
+
+/**
+ * Truncate an address or long string
+ * @param {string} str - The string to truncate
+ * @param {number} startChars - Number of characters to show at start
+ * @param {number} endChars - Number of characters to show at end
+ * @returns {string} - Truncated string
+ */
+export const truncateAddress = (str, startChars = 6, endChars = 4) => {
+  if (!str) return '';
+  if (str.length <= startChars + endChars) return str;
+  return `${str.substring(0, startChars)}...${str.substring(str.length - endChars)}`;
 };

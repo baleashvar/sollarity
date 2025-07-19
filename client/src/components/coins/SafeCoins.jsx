@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { formatCurrency } from '../../utils/formatters';
+import LoadingSpinner from '../ui/LoadingSpinner';
+import { getSafeCoins } from '../../services/api';
 
 const SafeCoins = () => {
   const [coins, setCoins] = useState([]);
@@ -10,19 +13,14 @@ const SafeCoins = () => {
     const fetchSafeCoins = async () => {
       try {
         setLoading(true);
-        
-        // In a real app, this would be an environment variable
-        const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-        
-        const response = await fetch(`${API_URL}/coins/safe`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch safe coins');
+        const data = await getSafeCoins();
+        if (Array.isArray(data) && data.length > 0) {
+          setCoins(data);
+          setError(null);
+        } else {
+          setCoins([]);
+          setError('No safe coins available');
         }
-        
-        const data = await response.json();
-        setCoins(data);
-        setError(null);
       } catch (err) {
         setError('Failed to load safe coins');
         console.error(err);
@@ -34,23 +32,7 @@ const SafeCoins = () => {
     fetchSafeCoins();
   }, []);
 
-  // Helper function for formatting
-  const formatCurrency = (value) => {
-    if (!value && value !== 0) return 'N/A';
-    
-    // Format based on value size
-    if (value >= 1000000000) {
-      return `$${(value / 1000000000).toFixed(2)}B`;
-    } else if (value >= 1000000) {
-      return `$${(value / 1000000).toFixed(2)}M`;
-    } else if (value >= 1000) {
-      return `$${(value / 1000).toFixed(2)}K`;
-    } else if (value < 0.000001) {
-      return `$${value.toExponential(2)}`;
-    } else {
-      return `$${value.toFixed(6)}`;
-    }
-  };
+  // Using the imported formatCurrency function from utils/formatters
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
@@ -59,8 +41,8 @@ const SafeCoins = () => {
       </h2>
       
       {loading ? (
-        <div className="flex justify-center py-4">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-500"></div>
+        <div className="py-4">
+          <LoadingSpinner size="sm" />
         </div>
       ) : error ? (
         <div className="text-center py-4 text-red-500">

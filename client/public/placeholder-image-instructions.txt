@@ -1,0 +1,5 @@
+To complete the setup, please add a placeholder image for coins:
+
+1. Create a file named "placeholder-coin.png" in this directory
+2. You can use any simple coin icon image (64x64 pixels recommended)
+3. This image will be used when a coin doesn't have an image URL or when loading fails

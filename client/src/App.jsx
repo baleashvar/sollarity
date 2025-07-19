@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Dashboard from './pages/Dashboard';
 import CoinDetail from './pages/CoinDetail';
 import About from './pages/About';
+import Subscription from './pages/Subscription';
+import ThankYou from './pages/ThankYou';
+import ScamAlertsPage from './pages/ScamAlertsPage';
 import NotFound from './pages/NotFound';
 import './App.css';
 
@@ -27,20 +31,29 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
-        <Navbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-        <main className="container mx-auto px-4 py-8">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/coin/:address" element={<CoinDetail />} />
-            <Route path="/about" element={<About />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </Router>
+    <PayPalScriptProvider options={{ 
+      "client-id": process.env.REACT_APP_PAYPAL_CLIENT_ID,
+      currency: "USD",
+      intent: "capture"
+    }}>
+      <Router>
+        <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+          <Navbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+          <main className="container mx-auto px-4 py-6 md:px-6 lg:px-8 lg:py-8">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/coin/:address" element={<CoinDetail />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/subscription" element={<Subscription />} />
+              <Route path="/thank-you" element={<ThankYou />} />
+              <Route path="/scam-alerts" element={<ScamAlertsPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </Router>
+    </PayPalScriptProvider>
   );
 }
 

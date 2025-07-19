@@ -4,8 +4,10 @@ import CoinTable from '../components/coins/CoinTable';
 import FilterPanel from '../components/filters/FilterPanel';
 import TrendingCoins from '../components/coins/TrendingCoins';
 import SafeCoins from '../components/coins/SafeCoins';
+import ScamAlerts from '../components/alerts/ScamAlerts';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Alert from '../components/ui/Alert';
+import { getCoins } from '../services/api';
 
 const Dashboard = () => {
   const [coins, setCoins] = useState([]);
@@ -29,40 +31,17 @@ const Dashboard = () => {
     try {
       setLoading(true);
       
-      // Build query string from filters
-      const queryParams = new URLSearchParams({
-        page,
-        limit: 20,
-        sort: filters.sort,
-        order: filters.order
-      });
+      const data = await getCoins(page, filters);
       
-      if (filters.minMarketCap) {
-        queryParams.append('minMarketCap', filters.minMarketCap);
+      if (data && data.coins) {
+        setCoins(data.coins);
+        setTotalPages(data.totalPages || 1);
+        setError(null);
+      } else {
+        setCoins([]);
+        setTotalPages(1);
+        setError('No coins available. Please check your filters.');
       }
-      
-      if (filters.maxScamProbability) {
-        queryParams.append('maxScamProbability', filters.maxScamProbability);
-      }
-      
-      if (filters.lpBurned) {
-        queryParams.append('lpBurned', 'true');
-      }
-      
-      // In a real app, this would be an environment variable
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-      
-      const response = await fetch(`${API_URL}/coins?${queryParams}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch coins');
-      }
-      
-      const data = await response.json();
-      
-      setCoins(data.coins);
-      setTotalPages(data.totalPages);
-      setError(null);
     } catch (err) {
       setError('Failed to load coins. Please try again later.');
       console.error(err);
@@ -82,22 +61,29 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-2 text-indigo-600 dark:text-indigo-400">
-          Sollarity
-        </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300">
-          Discover and analyze Solana memecoins with confidence
-        </p>
+    <div className="space-y-6">
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-8 px-6 rounded-lg shadow-lg mb-6">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-4xl font-bold mb-3 text-center sm:text-left">
+            Sollarity
+          </h1>
+          <p className="text-xl opacity-90 text-center sm:text-left">
+            Discover and analyze Solana memecoins with confidence
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">
-              Memecoin Explorer
-            </h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-100 dark:border-gray-700">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">
+                <span className="text-indigo-600 dark:text-indigo-400 mr-2">⟡</span>Memecoin Explorer
+              </h2>
+              <div className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+                Live Market Data
+              </div>
+            </div>
             
             <FilterPanel filters={filters} onFilterChange={handleFilterChange} />
             
@@ -143,6 +129,7 @@ const Dashboard = () => {
         <div className="space-y-6">
           <TrendingCoins />
           <SafeCoins />
+          <ScamAlerts />
           
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">

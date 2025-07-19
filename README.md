@@ -8,7 +8,7 @@ Sollarity is a data-driven crypto analysis platform that:
 - Extracts live and historical memecoin data
 - Identifies potentially fraudulent coins using various indicators
 - Provides detailed analytics on coin performance
-- Offers premium features via Stripe and crypto payments
+- Offers premium features via Paypal and crypto payments(In development)
 - Generates revenue through strategic ad placement
 
 ## Architecture

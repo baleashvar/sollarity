@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Coin = require('../models/Coin');
 const PriceHistory = require('../models/PriceHistory');
 
@@ -52,6 +53,91 @@ router.get('/', async (req, res) => {
       currentPage: Number(page),
       total
     });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+/**
+ * @route   GET /api/coins/trending
+ * @desc    Get trending coins (highest volume in last 24h)
+ * @access  Public
+ */
+router.get('/trending', async (req, res) => {
+  try {
+    // First try to get from TrendingCoin collection if it exists
+    const TrendingCoin = mongoose.models.TrendingCoin || mongoose.model('TrendingCoin', new mongoose.Schema({
+      coinAddress: String,
+      rank: Number,
+      timestamp: Date
+    }));
+    
+    const trendingData = await TrendingCoin.find().sort({ rank: 1 }).limit(10);
+    
+    if (trendingData && trendingData.length > 0) {
+      // Get the actual coin data for each trending coin
+      const coinAddresses = trendingData.map(item => item.coinAddress);
+      const trendingCoins = await Coin.find({ address: { $in: coinAddresses } });
+      
+      // Sort by the original ranking
+      const sortedCoins = coinAddresses.map(address => 
+        trendingCoins.find(coin => coin.address === address)
+      ).filter(Boolean);
+      
+      return res.json(sortedCoins);
+    }
+    
+    // Fallback to sorting by volume if no trending data
+    const trendingCoins = await Coin.find()
+      .sort({ volume24h: -1 })
+      .limit(10);
+    
+    res.json(trendingCoins);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+/**
+ * @route   GET /api/coins/safe
+ * @desc    Get safest coins (lowest scam probability)
+ * @access  Public
+ */
+router.get('/safe', async (req, res) => {
+  try {
+    // First try to get from SafeCoin collection if it exists
+    const SafeCoin = mongoose.models.SafeCoin || mongoose.model('SafeCoin', new mongoose.Schema({
+      coinAddress: String,
+      rank: Number,
+      timestamp: Date
+    }));
+    
+    const safeData = await SafeCoin.find().sort({ rank: 1 }).limit(10);
+    
+    if (safeData && safeData.length > 0) {
+      // Get the actual coin data for each safe coin
+      const coinAddresses = safeData.map(item => item.coinAddress);
+      const safeCoins = await Coin.find({ address: { $in: coinAddresses } });
+      
+      // Sort by the original ranking
+      const sortedCoins = coinAddresses.map(address => 
+        safeCoins.find(coin => coin.address === address)
+      ).filter(Boolean);
+      
+      return res.json(sortedCoins);
+    }
+    
+    // Fallback to filtering by scam probability if no safe data
+    const safeCoins = await Coin.find({ 
+      scamProbability: { $lt: 0.3 },
+      marketCap: { $gt: 100000 } // At least $100k market cap
+    })
+    .sort({ scamProbability: 1 })
+    .limit(10);
+    
+    res.json(safeCoins);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
@@ -114,45 +200,6 @@ router.get('/:address/history', async (req, res) => {
     }).sort({ timestamp: 1 });
     
     res.json(history);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-/**
- * @route   GET /api/coins/trending
- * @desc    Get trending coins (highest volume in last 24h)
- * @access  Public
- */
-router.get('/trending', async (req, res) => {
-  try {
-    const trendingCoins = await Coin.find()
-      .sort({ volume24h: -1 })
-      .limit(10);
-    
-    res.json(trendingCoins);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-/**
- * @route   GET /api/coins/safe
- * @desc    Get safest coins (lowest scam probability)
- * @access  Public
- */
-router.get('/safe', async (req, res) => {
-  try {
-    const safeCoins = await Coin.find({ 
-      scamProbability: { $lt: 0.3 },
-      marketCap: { $gt: 100000 } // At least $100k market cap
-    })
-    .sort({ scamProbability: 1 })
-    .limit(10);
-    
-    res.json(safeCoins);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
