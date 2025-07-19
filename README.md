@@ -52,58 +52,16 @@ Sollarity is a data-driven crypto analysis platform that:
 - Premium subscription options
 - User watchlists and alerts
 
-## Getting Started
+## Platform Preview
 
-### Prerequisites
+![Sollarity Dashboard](assets/images/capture.png)
+*Sollarity's intuitive dashboard provides real-time insights into the Solana memecoin market*
 
-- Node.js (v16+)
-- Python (v3.8+)
-- MongoDB
+![Scam Detection](assets/images/capture1.png)
+*Our advanced algorithms help identify potentially fraudulent tokens before you invest*
 
-### Environment Variables
+## Contact
 
-This project uses environment variables for configuration. Before running the application:
+For business inquiries, please contact us at info@sollarity.io
 
-1. Copy the example environment file:
-   ```bash
-   cp config/.env.example config/.env
-   ```
-
-2. Edit `config/.env` with your actual credentials
-
-**IMPORTANT: Never commit your .env file containing real credentials to version control!**
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/sollarity.git
-
-# Install server dependencies
-cd sollarity/server
-npm install
-
-# Install client dependencies
-cd ../client
-npm install
-
-# Install Python dependencies
-cd ../workers
-pip install -r requirements.txt
-```
-
-## Development
-
-```bash
-# Run the server
-cd server
-npm run dev
-
-# Run the client
-cd client
-npm start
-```
-
-## License
-
-MIT
+© 2023 Sollarity. All rights reserved.
