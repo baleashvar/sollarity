@@ -54,10 +54,10 @@ Sollarity is a data-driven crypto analysis platform that:
 
 ## Platform Preview
 
-![Sollarity Dashboard](assets/images/capture.png)
+![Sollarity Dashboard](assets/images/Capture.JPG)
 *Sollarity's intuitive dashboard provides real-time insights into the Solana memecoin market*
 
-![Scam Detection](assets/images/capture1.png)
+![Scam Detection](assets/images/Capture1.JPG)
 *Our advanced algorithms help identify potentially fraudulent tokens before you invest*
 
 ## Contact
