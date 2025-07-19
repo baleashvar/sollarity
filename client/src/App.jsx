@@ -32,7 +32,7 @@ function App() {
 
   return (
     <PayPalScriptProvider options={{ 
-      "client-id": process.env.REACT_APP_PAYPAL_CLIENT_ID,
+      "client-id": "AUSxlQJqeMMOu7S4logC-wqSKv85VMTAY7_6oHpJAYLwnpPc2ZCLawCKvHkmU6j2buV1-Lxj5F-bHs7L",
       currency: "USD",
       intent: "capture"
     }}>

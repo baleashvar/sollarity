@@ -6,6 +6,7 @@ const PayPalButton = ({ amount, description, onSuccess, onError }) => {
   const [isPending, setIsPending] = useState(false);
 
   const createOrder = (data, actions) => {
+    console.log('Creating PayPal order for amount:', amount);
     return actions.order.create({
       purchase_units: [{
         amount: {
@@ -19,6 +20,7 @@ const PayPalButton = ({ amount, description, onSuccess, onError }) => {
 
   const onApprove = (data, actions) => {
     setIsPending(true);
+    console.log('Payment approved, capturing order:', data.orderID);
     
     return actions.order.capture().then(details => {
       setIsPending(false);
@@ -26,7 +28,8 @@ const PayPalButton = ({ amount, description, onSuccess, onError }) => {
       
       // Call backend to record subscription (optional)
       try {
-        axios.post('/api/payments/record-payment', {
+        const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+        axios.post(`${API_URL}/payments/record-payment`, {
           orderId: data.orderID,
           paymentDetails: details
         });
