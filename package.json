@@ -2,11 +2,41 @@
   "name": "sollarity",
   "version": "1.0.0",
   "description": "A website that provides insights and analysis about Solana-based meme coins, helping users identify legitimate investment opportunities and avoid scams.",
-  "main": "test-server.js",
+  "main": "server/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "cd server && npm start",
+    "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm start\"",
+    "build": "cd client && npm run build",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+    "install:server": "cd server && npm install",
+    "install:client": "cd client && npm install",
+    "install:python": "cd workers && pip install -r requirements.txt",
+    "test": "cd server && npm test && cd ../client && npm test",
+    "docker:build": "docker build -t sollarity .",
+    "docker:run": "docker-compose up -d",
+    "docker:stop": "docker-compose down",
+    "setup": "npm run install:all && npm run build",
+    "deploy": "npm run build && npm start"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "keywords": [
+    "solana",
+    "memecoin",
+    "crypto",
+    "analysis",
+    "scam-detection",
+    "defi",
+    "blockchain"
+  ],
+  "author": "Sollarity Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "mongoose": "^8.16.4"
+  }
 }

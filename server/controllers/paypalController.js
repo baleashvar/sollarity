@@ -50,7 +50,7 @@ exports.createOrder = async (req, res) => {
 // Capture payment for an order
 exports.capturePayment = async (req, res) => {
   try {
-    const { orderId } = req.params;
+    const { orderId } = req.query;
     
     if (!orderId) {
       return res.status(400).json({ error: 'Order ID is required' });

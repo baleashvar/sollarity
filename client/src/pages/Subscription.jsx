@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import SubscriptionPlans from '../components/payments/SubscriptionPlans';
 import PayPalButton from '../components/payments/PayPalButton';
 
@@ -14,6 +13,7 @@ const Subscription = () => {
   const [planSelectionStable, setPlanSelectionStable] = useState(false);
 
   const handlePlanSelect = (plan) => {
+    console.log('Subscription page - Plan selected:', plan);
     setSelectedPlan(plan);
     setPlanSelectionStable(true);
   };

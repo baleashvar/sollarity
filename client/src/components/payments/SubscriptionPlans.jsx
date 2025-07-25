@@ -7,12 +7,16 @@ const PlanCard = ({ plan, onSelectPlan, isSelected }) => {
   
   return (
     <div 
-      className={`border rounded-lg p-6 transition-all ${
+      className={`border rounded-lg p-6 transition-all cursor-pointer ${
         isSelected 
           ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' 
           : 'border-gray-200 dark:border-gray-700 hover:shadow-md'
       }`}
-      onClick={() => onSelectPlan(plan)}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onSelectPlan(plan);
+      }}
     >
       <div className="flex justify-between items-start">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -94,42 +98,34 @@ const SubscriptionPlans = ({ onPlanSelect }) => {
   const [plans, setPlans] = useState(fallbackPlans);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedPlan, setSelectedPlan] = useState(fallbackPlans[0]);
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
   useEffect(() => {
-    // Initialize with the first plan
-    if (onPlanSelect && selectedPlan) {
-      onPlanSelect(selectedPlan);
-    }
-    
     const fetchPlans = async () => {
       try {
-        // Try to fetch from API with a timeout
         const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
         const response = await axios.get(`${API_URL}/payments/plans`, { timeout: 5000 });
         
         if (response.data && response.data.length > 0) {
           setPlans(response.data);
-          setSelectedPlan(response.data[0]);
-          if (onPlanSelect) onPlanSelect(response.data[0]);
         }
       } catch (apiError) {
         console.error('Error fetching plans from API:', apiError);
-        // Already using fallback plans, just show error message
         setError('Using default plans - could not connect to server');
       } finally {
         setLoading(false);
       }
     };
 
-    // Short timeout to ensure UI is stable before potential API call
-    const timer = setTimeout(fetchPlans, 100);
-    return () => clearTimeout(timer);
-  }, [onPlanSelect, selectedPlan]);
+    fetchPlans();
+  }, []);
 
   const handleSelectPlan = (plan) => {
+    console.log('Plan selected:', plan);
     setSelectedPlan(plan);
-    if (onPlanSelect) onPlanSelect(plan);
+    if (onPlanSelect) {
+      onPlanSelect(plan);
+    }
   };
 
   if (loading) {

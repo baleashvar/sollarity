@@ -9,7 +9,10 @@ import About from './pages/About';
 import Subscription from './pages/Subscription';
 import ThankYou from './pages/ThankYou';
 import ScamAlertsPage from './pages/ScamAlertsPage';
+import Auth from './pages/Auth';
 import NotFound from './pages/NotFound';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import './App.css';
 
 function App() {
@@ -47,6 +50,9 @@ function App() {
               <Route path="/subscription" element={<Subscription />} />
               <Route path="/thank-you" element={<ThankYou />} />
               <Route path="/scam-alerts" element={<ScamAlertsPage />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

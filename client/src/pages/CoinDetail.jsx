@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getCoin, getCoinHistory } from '../services/api';
-import { formatCurrency, formatPercentage } from '../utils/formatters';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+import PriceChart from '../components/charts/PriceChart';
 
 const CoinDetail = () => {
   const { address } = useParams();
@@ -21,10 +20,6 @@ const CoinDetail = () => {
         const coinData = await getCoin(address);
         setCoin(coinData);
         
-        // Fetch price history
-        const historyData = await getCoinHistory(address, timeframe);
-        setPriceHistory(historyData);
-        
         setError(null);
       } catch (err) {
         setError('Failed to load coin data');
@@ -35,6 +30,37 @@ const CoinDetail = () => {
     };
 
     fetchCoinData();
+  }, [address]);
+  
+  // Auto-refreshing price history
+  useEffect(() => {
+    const fetchPriceHistory = async () => {
+      try {
+        const url = `http://localhost:5000/api/analytics/history?address=${address}&timeframe=${timeframe}&_t=${Date.now()}`;
+        console.log(`Fetching ${timeframe} from:`, url);
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        const points = data.points || [];
+        
+        console.log(`[CLIENT] ${timeframe}: ${points.length} points`, 
+                   points.length > 0 ? new Date(points[0].t) : 'none',
+                   points.length > 0 ? new Date(points[points.length-1].t) : 'none');
+        
+        setPriceHistory(points);
+      } catch (err) {
+        console.error('Price history error:', err);
+        setPriceHistory([]);
+      }
+    };
+
+    if (address) {
+      fetchPriceHistory();
+      
+      // Auto-refresh every 2 minutes
+      const interval = setInterval(fetchPriceHistory, 120000);
+      return () => clearInterval(interval);
+    }
   }, [address, timeframe]);
 
   const handleTimeframeChange = (newTimeframe) => {
@@ -94,8 +120,8 @@ const CoinDetail = () => {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-6">
-        <Link
-          to="/"
+        <button
+          onClick={() => window.history.back()}
           className="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center"
         >
           <svg
@@ -113,7 +139,7 @@ const CoinDetail = () => {
             />
           </svg>
           Back to Dashboard
-        </Link>
+        </button>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
@@ -266,36 +292,25 @@ const CoinDetail = () => {
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Price History
             </h2>
-            <div className="flex space-x-2">
-              {['1h', '24h', '7d', '30d'].map((tf) => (
-                <button
-                  key={tf}
-                  onClick={() => handleTimeframeChange(tf)}
-                  className={`px-2 py-1 text-xs rounded ${
-                    timeframe === tf
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-                  }`}
-                >
-                  {tf}
-                </button>
-              ))}
+            <div className="flex space-x-2 items-center">
+              <button
+                className="px-3 py-1 text-sm rounded bg-green-600 text-white"
+              >
+                24h Real-Time
+              </button>
+              <span className="text-xs text-green-600 font-medium">
+                🔴 Live Data (Auto-refresh: 2min)
+              </span>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-2 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700"
+              >
+                🔄 Refresh Now
+              </button>
             </div>
           </div>
           
-          {priceHistory.length > 0 ? (
-            <div className="h-64 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center">
-              <p className="text-gray-500 dark:text-gray-400">
-                [Price chart would be rendered here with Chart.js]
-              </p>
-            </div>
-          ) : (
-            <div className="h-64 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center">
-              <p className="text-gray-500 dark:text-gray-400">
-                No price history available for this timeframe
-              </p>
-            </div>
-          )}
+          <PriceChart priceHistory={priceHistory} timeframe={timeframe} />
         </div>
       </div>
 

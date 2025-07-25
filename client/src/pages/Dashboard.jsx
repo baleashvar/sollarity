@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import CoinTable from '../components/coins/CoinTable';
 import FilterPanel from '../components/filters/FilterPanel';
 import TrendingCoins from '../components/coins/TrendingCoins';
@@ -10,45 +10,72 @@ import Alert from '../components/ui/Alert';
 import { getCoins } from '../services/api';
 
 const Dashboard = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [coins, setCoins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(() => {
+    const savedPage = sessionStorage.getItem('dashboardPage');
+    return savedPage ? parseInt(savedPage) : 1;
+  });
   const [totalPages, setTotalPages] = useState(1);
   const [filters, setFilters] = useState({
     minMarketCap: '',
     maxScamProbability: '',
     lpBurned: false,
-    sort: 'marketCap',
-    order: 'desc'
+    sort: searchParams.get('sort') || 'marketCap',
+    order: searchParams.get('order') || 'desc'
   });
 
-  useEffect(() => {
-    fetchCoins();
-  }, [page, filters]);
-
-  const fetchCoins = async () => {
+  const refreshData = async () => {
     try {
       setLoading(true);
+      await fetch('http://localhost:5000/api/data-refresh/complete', { method: 'POST' });
+      setTimeout(fetchCoins, 3000);
+    } catch (err) {
+      console.error('Refresh failed:', err);
+      setLoading(false);
+    }
+  };
+
+  const fetchCoins = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Skip refresh for now to avoid conflicts
+      // refreshData();
       
       const data = await getCoins(page, filters);
       
       if (data && data.coins) {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const premiumText = user.isPremium ? ' (Premium: 50/page)' : ' (Free: 20/page)';
+        console.log(`Received ${data.coins.length} coins from API. Total: ${data.total}${premiumText}`);
         setCoins(data.coins);
         setTotalPages(data.totalPages || 1);
-        setError(null);
       } else {
         setCoins([]);
         setTotalPages(1);
-        setError('No coins available. Please check your filters.');
+        setError('No coins available. Server may be starting up...');
       }
     } catch (err) {
-      setError('Failed to load coins. Please try again later.');
-      console.error(err);
+      setCoins([]);
+      setTotalPages(1);
+      setError(`Connection failed: ${err.message}. Make sure the server is running on port 5000.`);
+      console.error('API Error:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, filters]);
+
+  useEffect(() => {
+    fetchCoins();
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(fetchCoins, 30000);
+    return () => clearInterval(interval);
+  }, [fetchCoins]);
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
@@ -57,6 +84,7 @@ const Dashboard = () => {
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
+    sessionStorage.setItem('dashboardPage', newPage.toString());
     window.scrollTo(0, 0);
   };
 
@@ -80,8 +108,16 @@ const Dashboard = () => {
               <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">
                 <span className="text-indigo-600 dark:text-indigo-400 mr-2">⟡</span>Memecoin Explorer
               </h2>
-              <div className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
-                Live Market Data
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={fetchCoins}
+                  className="text-sm bg-indigo-600 text-white px-3 py-1 rounded-full hover:bg-indigo-700"
+                >
+                  🔄 Refresh
+                </button>
+                <div className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+                  Live Data
+                </div>
               </div>
             </div>
             

@@ -57,21 +57,9 @@ const SafeCoins = () => {
                 className="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded"
               >
                 <div className="flex items-center">
-                  {coin.image ? (
-                    <img 
-                      src={coin.image} 
-                      alt={coin.name} 
-                      className="w-6 h-6 rounded-full mr-2"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = '/placeholder-coin.png';
-                      }}
-                    />
-                  ) : (
-                    <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 mr-2 flex items-center justify-center text-xs">
-                      {coin.symbol.substring(0, 1)}
-                    </div>
-                  )}
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 mr-2 flex items-center justify-center text-white text-xs font-bold">
+                    {coin.symbol.substring(0, 2)}
+                  </div>
                   <span className="font-medium text-gray-900 dark:text-white">
                     {coin.symbol}
                   </span>
@@ -92,7 +80,7 @@ const SafeCoins = () => {
       
       <div className="mt-4 text-center">
         <Link 
-          to="/"
+          to="/?sort=scamProbability&order=asc"
           className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
         >
           View all safe coins

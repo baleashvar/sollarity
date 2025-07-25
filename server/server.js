@@ -4,66 +4,195 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 
-// Load environment variables
 dotenv.config({ path: path.join(__dirname, '..', 'config', '.env') });
 
-// Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/sollarity', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log('MongoDB connected'))
-.catch(err => {
-  console.error('MongoDB connection error:', err);
-  process.exit(1);
+.catch(err => console.error('MongoDB connection error:', err));
+
+const Coin = require('./models/Coin');
+const PriceHistory = require('./models/PriceHistory');
+
+// Coins route with proper filtering
+app.get('/api/coins', async (req, res) => {
+  try {
+    const { 
+      page = 1, 
+      limit = 20,
+      isPremium = false, 
+      sort = 'marketCap', 
+      order = 'desc',
+      minMarketCap,
+      maxScamProbability,
+      lpBurned
+    } = req.query;
+    
+    const filter = {};
+    
+    if (minMarketCap) {
+      filter.marketCap = { $gte: Number(minMarketCap) };
+    }
+    
+    if (maxScamProbability) {
+      filter.scamProbability = { $lte: Number(maxScamProbability) };
+    }
+    
+    if (lpBurned === 'true') {
+      filter.lpBurned = true;
+    }
+    
+    const sortObj = {};
+    sortObj[sort] = order === 'desc' ? -1 : 1;
+    
+    const actualLimit = isPremium === 'true' ? Math.min(Number(limit), 50) : Math.min(Number(limit), 20);
+    
+    const coins = await Coin.find(filter)
+      .sort(sortObj)
+      .limit(actualLimit)
+      .skip((Number(page) - 1) * actualLimit);
+    
+    const total = await Coin.countDocuments(filter);
+    
+    res.json({
+      coins,
+      totalPages: Math.ceil(total / actualLimit),
+      currentPage: Number(page),
+      total,
+      isPremium: isPremium === 'true'
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
-// Import routes
-const coinRoutes = require('./routes/coins');
-const testRoutes = require('./routes/test');
+// Coin detail route
+app.get('/api/coins/detail', async (req, res) => {
+  try {
+    const { address } = req.query;
+    const coin = await Coin.findOne({ address });
+    
+    if (!coin) {
+      return res.status(404).json({ message: 'Coin not found' });
+    }
+    
+    res.json(coin);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Trending coins
+app.get('/api/coins/trending', async (req, res) => {
+  try {
+    const coins = await Coin.find().sort({ volume24h: -1 }).limit(20);
+    res.json(coins);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Safe coins
+app.get('/api/coins/safe', async (req, res) => {
+  try {
+    const coins = await Coin.find({ scamProbability: { $lt: 0.3 } })
+      .sort({ scamProbability: 1 }).limit(20);
+    res.json(coins);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Real-time 24h price history
+app.get('/api/analytics/history', async (req, res) => {
+  try {
+    const { address, timeframe = '24h' } = req.query;
+    
+    // Only support 24h for real-time data
+    if (timeframe !== '24h') {
+      return res.json({ tf: timeframe, points: [] });
+    }
+    
+    const now = new Date();
+    const from = new Date(now - 24 * 60 * 60 * 1000); // 24 hours ago
+    
+    // Try real-time data first, fallback to price history
+    let realData = [];
+    
+    try {
+      // Try realtime_prices collection
+      const RealtimePrices = mongoose.model('realtime_prices', new mongoose.Schema({
+        address: String,
+        symbol: String,
+        price: Number,
+        timestamp: Date
+      }));
+      
+      realData = await RealtimePrices.find({
+        address: address,
+        timestamp: { $gte: from },
+        price: { $gt: 0 }
+      }).sort({ timestamp: 1 });
+      
+      console.log(`Found ${realData.length} real-time points for ${address}`);
+    } catch (err) {
+      console.log('Real-time collection not found, trying price history...');
+    }
+    
+    // Fallback to existing price history if no real-time data
+    if (realData.length === 0) {
+      realData = await PriceHistory.find({
+        coinAddress: address,
+        timestamp: { $gte: from },
+        price: { $gt: 0, $ne: null }
+      }).sort({ timestamp: 1 });
+      
+      console.log(`Found ${realData.length} fallback points for ${address}`);
+    }
+    
+    const points = realData.map(point => ({
+      t: point.timestamp ? point.timestamp.getTime() : new Date(point.timestamp).getTime(),
+      c: point.price || parseFloat(point.price),
+      v: point.volume || 1000
+    }));
+    
+    console.log(`[REAL] ${address} 24h ${points.length} real data points`);
+    
+    res.json({ tf: timeframe, points, isReal: true });
+  } catch (err) {
+    console.error('Real-time data error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Load other routes
+const authRoutes = require('./routes/auth');
+const premiumRoutes = require('./routes/premium');
 const paypalRoutes = require('./routes/paypalRoutes');
 const scamAlertRoutes = require('./routes/scamAlerts');
+const refreshRoutes = require('./routes/refresh');
+const dataRefreshRoutes = require('./routes/data-refresh');
+const testRoutes = require('./routes/test');
+const watchlistRoutes = require('./routes/watchlist');
 
-// Use routes
-app.use('/api/coins', coinRoutes);
-app.use('/api/test', testRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/premium', premiumRoutes);
 app.use('/api/payments', paypalRoutes);
 app.use('/api/scam-alerts', scamAlertRoutes);
+app.use('/api/refresh', refreshRoutes);
+app.use('/api/data-refresh', dataRefreshRoutes);
+app.use('/api/test', testRoutes);
+app.use('/api/watchlist', watchlistRoutes);
 
-// Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+  res.json({ status: 'ok' });
 });
 
-// Serve static assets in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '..', 'client', 'build')));
-  
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'));
-  });
-}
-
-// Add a catch-all route for API routes that don't exist
-app.use('/api/*', (req, res) => {
-  res.status(404).json({ message: 'API endpoint not found' });
+app.listen(PORT, () => {
+  console.log(`Sollarity server running on port ${PORT}`);
 });
-
-// Start server
-try {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Test API at: http://localhost:${PORT}/api/test`);
-    console.log(`Health check at: http://localhost:${PORT}/health`);
-  });
-} catch (error) {
-  console.error('Failed to start server:', error);
-}

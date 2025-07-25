@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
+import WatchlistButton from '../watchlist/WatchlistButton';
 
 const CoinTable = ({ coins }) => {
   if (!coins || coins.length === 0) {
@@ -34,6 +35,9 @@ const CoinTable = ({ coins }) => {
             <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b-2 border-gray-200 dark:border-gray-600">
               Risk
             </th>
+            <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b-2 border-gray-200 dark:border-gray-600">
+              Watch
+            </th>
           </tr>
         </thead>
         <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -41,21 +45,20 @@ const CoinTable = ({ coins }) => {
             <tr key={coin.address} className="hover:bg-gray-50 dark:hover:bg-gray-700">
               <td className="px-6 py-4 whitespace-nowrap">
                 <Link to={`/coin/${coin.address}`} className="flex items-center">
-                  {coin.image ? (
+                  {coin.image && coin.image.startsWith('http') ? (
                     <img 
                       src={coin.image} 
                       alt={coin.name} 
                       className="w-8 h-8 rounded-full mr-3"
                       onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = '/placeholder-coin.png';
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
                       }}
                     />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 mr-3 flex items-center justify-center">
-                      {coin.symbol.substring(0, 1)}
-                    </div>
-                  )}
+                  ) : null}
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 mr-3 flex items-center justify-center text-white font-bold text-sm" style={{display: coin.image && coin.image.startsWith('http') ? 'none' : 'flex'}}>
+                    {coin.symbol.substring(0, 2)}
+                  </div>
                   <div>
                     <div className="font-medium text-gray-900 dark:text-white">
                       {coin.name}
@@ -104,6 +107,9 @@ const CoinTable = ({ coins }) => {
                      coin.scamProbability < 0.7 ? 'Medium Risk' : 'High Risk'}
                   </div>
                 </div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-center">
+                <WatchlistButton coinAddress={coin.address} />
               </td>
             </tr>
           ))}

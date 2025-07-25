@@ -9,10 +9,15 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
  */
 export const getCoins = async (page = 1, filters = {}) => {
   try {
+    // Check if user is premium
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const isPremium = user.isPremium || false;
+    
     // Build query string from filters
     const queryParams = new URLSearchParams({
       page,
-      limit: 20,
+      limit: isPremium ? 50 : 20,
+      isPremium: isPremium.toString(),
       sort: filters.sort || 'marketCap',
       order: filters.order || 'desc'
     });
@@ -47,7 +52,7 @@ export const getCoins = async (page = 1, filters = {}) => {
  */
 export const getCoin = async (address) => {
   try {
-    const response = await fetch(`${API_URL}/coins/${address}`);
+    const response = await fetch(`${API_URL}/coins/detail?address=${address}`);
     
     if (!response.ok) {
       throw new Error('Failed to fetch coin');
@@ -65,7 +70,7 @@ export const getCoin = async (address) => {
  */
 export const getCoinHistory = async (address, timeframe = '24h') => {
   try {
-    const response = await fetch(`${API_URL}/coins/${address}/history?timeframe=${timeframe}`);
+    const response = await fetch(`${API_URL}/analytics/history?address=${address}&timeframe=${timeframe}`);
     
     if (!response.ok) {
       throw new Error('Failed to fetch price history');

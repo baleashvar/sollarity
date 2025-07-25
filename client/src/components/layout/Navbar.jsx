@@ -67,7 +67,36 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
             </div>
           </div>
           
-          <div className="flex items-center">
+          <div className="flex items-center space-x-4">
+            {/* User Menu */}
+            {localStorage.getItem('user') ? (
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  {JSON.parse(localStorage.getItem('user')).username}
+                  {JSON.parse(localStorage.getItem('user')).isPremium && (
+                    <span className="ml-1 bg-yellow-500 text-white px-2 py-0.5 rounded text-xs">PRO</span>
+                  )}
+                </span>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.reload();
+                  }}
+                  className="text-sm text-red-600 hover:text-red-800"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/auth"
+                className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700"
+              >
+                Login
+              </Link>
+            )}
+            
             <button
               onClick={toggleDarkMode}
               className="p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none"
