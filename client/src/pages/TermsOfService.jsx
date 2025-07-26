@@ -76,13 +76,20 @@ const TermsOfService = () => {
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-              6. Premium Services
+              6. Premium Services & Refund Policy
             </h2>
-            <p>
+            <p className="mb-3">
               Premium features require subscription payments processed through PayPal. Subscriptions automatically 
-              renew unless cancelled. Refunds are provided according to our refund policy. Premium features may 
-              change without notice.
+              renew unless cancelled. Premium features may change without notice.
             </p>
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+              <p className="font-semibold text-red-800 dark:text-red-200 mb-2">
+                Refund Policy:
+              </p>
+              <p className="text-red-700 dark:text-red-300">
+                We are a small startup operating under significant economic constraints. Refunds will only be provided in cases of genuine technical failures or billing errors. Minor inconveniences, feature requests, or dissatisfaction with market performance do not qualify for refunds. By subscribing, you acknowledge and accept this policy.
+              </p>
+            </div>
           </section>
 
           <section>

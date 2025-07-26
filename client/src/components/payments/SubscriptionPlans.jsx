@@ -43,24 +43,14 @@ const PlanCard = ({ plan, onSelectPlan, isSelected }) => {
       </p>
       
       <ul className="mt-4 space-y-2">
-        <li className="flex items-center text-sm">
-          <svg className="h-4 w-4 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-          Advanced analytics
-        </li>
-        <li className="flex items-center text-sm">
-          <svg className="h-4 w-4 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-          {isMonthly ? '10' : 'Unlimited'} watchlist coins
-        </li>
-        <li className="flex items-center text-sm">
-          <svg className="h-4 w-4 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-          {isMonthly ? 'Basic' : 'Priority'} support
-        </li>
+        {plan.features?.map((feature, index) => (
+          <li key={index} className="flex items-center text-sm">
+            <svg className="h-4 w-4 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            {feature}
+          </li>
+        ))}
       </ul>
     </div>
   );
@@ -72,26 +62,29 @@ const SubscriptionPlans = ({ onPlanSelect }) => {
     {
       id: 'basic_monthly',
       name: 'Basic Plan',
-      description: 'Access to basic features and analytics',
+      description: 'Perfect for casual traders',
       amount: 9.99,
       currency: 'USD',
-      interval: 'month'
+      interval: 'month',
+      features: ['100 coins access', '5 watchlist items', 'Basic charts', 'Email support']
     },
     {
       id: 'premium_monthly',
-      name: 'Premium Plan',
-      description: 'Full access to all features and priority support',
-      amount: 19.99,
+      name: 'Pro Plan',
+      description: 'For serious memecoin traders',
+      amount: 29.99,
       currency: 'USD',
-      interval: 'month'
+      interval: 'month',
+      features: ['All coins access', '25 watchlist items', 'Advanced charts', 'Priority support', 'API access']
     },
     {
       id: 'premium_yearly',
-      name: 'Premium Annual',
-      description: 'Full access with 2 months free',
-      amount: 199.99,
+      name: 'Enterprise',
+      description: 'Maximum features and support',
+      amount: 99.99,
       currency: 'USD',
-      interval: 'year'
+      interval: 'month',
+      features: ['Everything in Pro', 'Unlimited watchlist', 'Custom alerts', 'Phone support', 'White-label option']
     }
   ];
   

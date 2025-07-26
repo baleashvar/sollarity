@@ -13,6 +13,7 @@ import Auth from './pages/Auth';
 import NotFound from './pages/NotFound';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import PremiumToggle from './components/ui/PremiumToggle';
 import './App.css';
 
 function App() {
@@ -35,7 +36,7 @@ function App() {
 
   return (
     <PayPalScriptProvider options={{ 
-      "client-id": "AUSxlQJqeMMOu7S4logC-wqSKv85VMTAY7_6oHpJAYLwnpPc2ZCLawCKvHkmU6j2buV1-Lxj5F-bHs7L",
+      "client-id": process.env.REACT_APP_PAYPAL_CLIENT_ID,
       currency: "USD",
       intent: "capture"
     }}>
@@ -57,6 +58,7 @@ function App() {
             </Routes>
           </main>
           <Footer />
+          <PremiumToggle />
         </div>
       </Router>
     </PayPalScriptProvider>

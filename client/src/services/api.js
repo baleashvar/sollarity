@@ -13,10 +13,11 @@ export const getCoins = async (page = 1, filters = {}) => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const isPremium = user.isPremium || false;
     
-    // Build query string from filters
+    // Build query string from filters  
+    const limit = isPremium ? 100 : 20;
     const queryParams = new URLSearchParams({
       page,
-      limit: isPremium ? 50 : 20,
+      limit,
       isPremium: isPremium.toString(),
       sort: filters.sort || 'marketCap',
       order: filters.order || 'desc'

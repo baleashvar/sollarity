@@ -8,9 +8,10 @@ const About = () => {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Our Mission</h2>
         <p className="text-gray-700 dark:text-gray-300 mb-4">
-          Sollarity is a data-driven platform designed to provide transparency and insights into the Solana memecoin ecosystem. 
-          Our mission is to help investors make informed decisions by providing comprehensive analytics, risk assessments, 
-          and real-time data on Solana-based meme tokens.
+          <strong>Sollarity</strong> - the name combines "Solana" and "clarity" - represents our mission to bring clarity to the complex world of Solana-based memecoin investments. As a specialized Solana memecoin analysis platform, we provide the insights you need to navigate this exciting but volatile market with confidence.
+        </p>
+        <p className="text-gray-700 dark:text-gray-300 mb-4">
+          Our data-driven platform is designed to provide transparency and comprehensive analytics, risk assessments, and real-time data specifically for Solana-based meme tokens.
         </p>
         <p className="text-gray-700 dark:text-gray-300">
           In the rapidly evolving world of cryptocurrency, especially in the memecoin sector, it can be challenging to 

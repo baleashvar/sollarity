@@ -1,120 +1,43 @@
-# Sollarity Installation Guide
+# Sollarity Installation
 
-This guide will help you set up and run the Sollarity project on your local machine.
-
-## Prerequisites
-
-Before you begin, make sure you have the following installed:
-
-- Node.js (v16+)
-- Python (v3.8+)
-- MongoDB (local installation or MongoDB Atlas account)
-
-## Installation
-
-### Option 1: Using the Installation Script
-
-For Windows users, you can run the provided installation script:
-
-1. Open Command Prompt
-2. Navigate to the project directory
-3. Run the installation script:
-   ```
-   install-dependencies.bat
-   ```
-
-### Option 2: Manual Installation
-
-#### 1. Install Client Dependencies
+## One-Command Install
 
 ```bash
-cd client
-npm install
+sollarity.bat install
 ```
 
-#### 2. Install Server Dependencies
+This installs:
+- Node.js dependencies (client + server)
+- Python dependencies (data collection + backup)
+
+## Manual Installation
+
+If the batch file doesn't work:
 
 ```bash
+# Server dependencies
 cd server
 npm install
-```
 
-#### 3. Install Python Dependencies with Virtual Environment
+# Client dependencies  
+cd ../client
+npm install
 
-```bash
-cd workers
-
-# Create virtual environment
-python -m venv venv
-
-# Activate virtual environment
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-# source venv/bin/activate
-
-# Install dependencies
+# Python dependencies
+cd ../workers
 pip install -r requirements.txt
 ```
 
-## Configuration
+## Requirements
 
-1. Copy the example environment file:
-   ```bash
-   copy config\.env.example config\.env
-   ```
+- Node.js 14+
+- Python 3.8+
+- MongoDB Atlas account
 
-2. Edit the `.env` file with your specific configuration:
-   - MongoDB connection string
-   - API keys
-   - Other environment variables
+## Next Steps
 
-## Running the Application
+1. Configure `config/.env` with your API keys
+2. Run `sollarity.bat start` to launch the platform
+3. Run `sollarity.bat scrape` to collect data
 
-### 1. Start MongoDB
-
-If using a local MongoDB installation:
-```bash
-mongod
-```
-
-### 2. Start the Server
-
-```bash
-cd server
-npm run dev
-```
-
-### 3. Start the Client
-
-```bash
-cd client
-npm start
-```
-
-### 4. Run the Python Workers
-
-```bash
-cd workers
-
-# Activate virtual environment if not already activated
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-# source venv/bin/activate
-
-# Run the scheduler
-python scheduler.py
-```
-
-## Accessing the Application
-
-Once everything is running, you can access the application at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
-
-## Troubleshooting
-
-- If you encounter any issues with MongoDB connection, make sure MongoDB is running and the connection string in your `.env` file is correct.
-- For Python dependency issues, make sure you're using Python 3.8+ and have installed all dependencies from `requirements.txt`.
-- For Node.js issues, ensure you're using Node.js v16+ and have installed all dependencies from both `client/package.json` and `server/package.json`.
+See HOW_TO_RUN.md for detailed setup instructions.

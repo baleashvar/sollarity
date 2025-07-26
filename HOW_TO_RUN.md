@@ -1,72 +1,65 @@
-# How to Run Sollarity
+# Sollarity Setup Guide
 
-Follow these steps to run the Sollarity application and display the scraped data:
+## Quick Start
 
-## 1. Seed the Database
+```bash
+# 1. Install everything
+sollarity.bat install
 
-First, you need to seed the database with sample data:
+# 2. Configure environment
+# Edit config/.env with your API keys
 
-```
-seed-all-data.bat
-```
+# 3. Start the platform
+sollarity.bat start
 
-This will:
-- Add sample coins (USDC, SOL, WIF, BONK, SCAM)
-- Add trending coins based on volume
-- Add safe coins based on scam probability
-- Add scam alerts
-
-## 2. Start the Server
-
-Start the Express server:
-
-```
-start-server.bat
+# 4. Run data collection
+sollarity.bat scrape
 ```
 
-This will:
-- Connect to MongoDB
-- Set up API endpoints
-- Listen on port 5000
+## Configuration
 
-## 3. Start the Client
-
-Start the React client:
-
-```
-start-client.bat
+### Required: Update `config/.env`
+```env
+MONGO_URI=your_mongodb_atlas_connection
+BIRDEYE_API_KEY=your_birdeye_key
+HELIUS_API_KEY=your_helius_key
 ```
 
-This will:
-- Start the development server
-- Open the application in your browser at http://localhost:3000
+### Optional: Google Drive Backup
+1. Get OAuth credentials from Google Cloud Console
+2. Save as `config/drive_credentials.json`
+3. Run `sollarity.bat backup-schedule`
 
-## 4. View the Data
+## API Keys Setup
 
-You should now see:
-- Main coin table with all coins
-- Trending coins section
-- Safe coins section
-- Scam alerts section
+### MongoDB Atlas
+1. Create account at mongodb.com/atlas
+2. Create cluster and get connection string
+
+### Birdeye API
+1. Visit birdeye.so
+2. Get API key
+3. Add to .env file
+
+## Commands
+
+- `sollarity.bat help` - Show all commands
+- `sollarity.bat install` - Install dependencies
+- `sollarity.bat start` - Start platform
+- `sollarity.bat scrape` - Collect data
+- `sollarity.bat backup` - Manual backup
+- `sollarity.bat backup-schedule` - Daily backups
+
+## Access Points
+
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5000
 
 ## Troubleshooting
 
-If you don't see any data:
+1. **MongoDB Error**: Check connection string and IP whitelist
+2. **API Limits**: Wait and retry, or upgrade API plan
+3. **Port Issues**: Change PORT in .env file
+4. **Dependencies**: Re-run `sollarity.bat install`
 
-1. Check the server console for errors
-2. Make sure MongoDB is connected
-3. Verify that the seed scripts ran successfully
-4. Check the browser console for any API errors
-
-## Running the Scraper
-
-To run the scraper and update the data:
-
-```
-run-simple-scraper.bat
-```
-
-This will:
-- Connect to MongoDB
-- Scrape new data
-- Update the database
+For detailed logs, check the terminal windows that open when starting the platform.

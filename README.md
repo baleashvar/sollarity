@@ -1,67 +1,69 @@
 # Sollarity
 
-A website that provides insights and analysis about Solana-based meme coins, helping users identify legitimate investment opportunities and avoid scams.
+A comprehensive Solana memecoin analysis platform with automated data collection, scam detection, and backup systems.
 
-## Project Overview
+## Features
 
-Sollarity is a data-driven crypto analysis platform that:
-- Extracts live and historical memecoin data
-- Identifies potentially fraudulent coins using various indicators
-- Provides detailed analytics on coin performance
-- Offers premium features via Paypal and crypto payments(In development)
-- Generates revenue through strategic ad placement
+- **Real-time Data**: 100 most popular Solana tokens
+- **Multi-API Integration**: Birdeye, CoinGecko with intelligent fallbacks
+- **Scam Detection**: Advanced risk analysis algorithms
+- **Automated Backups**: Daily backups to local storage and Google Drive
+- **MERN Stack**: React frontend, Node.js backend, MongoDB database
+
+## Quick Start
+
+```bash
+# Install dependencies
+sollarity.bat install
+
+# Start the platform
+sollarity.bat start
+
+# Run data scraper
+sollarity.bat scrape
+
+# Setup daily backups
+sollarity.bat backup-schedule
+```
 
 ## Architecture
 
 ```
-         [User Browser]
-               |
-        ┌──────▼──────┐
-        │   MERN UI   │  ← React + Tailwind + Chart.js
-        └──────┬──────┘
-               │ API
-        ┌──────▼────────────┐
-        │  Express/Node.js  │  ← Simple REST API wrapper
-        └──────┬────────────┘
-               │
-        ┌──────▼─────────────┐
-        │   Python Workers   │ ← Scraper + Analyzer (Axiom, Solana RPCs)
-        └──────┬─────────────┘
-               │
-     ┌─────────▼────────────┐
-     │ MongoDB (Atlas)      │ ← Coin metadata, market cap, trends
-     └──────────────────────┘
+[React Frontend] ←→ [Node.js API] ←→ [MongoDB]
+                          ↓
+                  [Python Workers]
+                    ↓         ↓
+              [Data Scraper] [Backup System]
+                    ↓         ↓
+              [Multiple APIs] [Google Drive]
 ```
+
+## Commands
+
+- `sollarity.bat install` - Install all dependencies
+- `sollarity.bat start` - Start frontend and backend
+- `sollarity.bat scrape` - Run data collection
+- `sollarity.bat backup` - Manual backup
+- `sollarity.bat backup-schedule` - Start daily backup scheduler
+- `sollarity.bat help` - Show all commands
+
+## Configuration
+
+Update `config/.env` with your API keys:
+```env
+MONGO_URI=your_mongodb_connection
+BIRDEYE_API_KEY=your_birdeye_key
+HELIUS_API_KEY=your_helius_key
+```
+
+For Google Drive backup, add `config/drive_credentials.json` from Google Cloud Console.
 
 ## Tech Stack
 
 - **Frontend**: React, Tailwind CSS, Chart.js
-- **Backend API**: Node.js, Express
-- **Data Processing**: Python, web3.py, AIOHTTP
-- **Database**: MongoDB Atlas
-- **Hosting**: Vercel / AWS EC2
-- **Scheduled Jobs**: AWS Lambda + EventBridge
-- **Payments**: Stripe + SolanaPay
-- **Monetization**: Google Adsense, Monetag
+- **Backend**: Node.js, Express, MongoDB
+- **Data Collection**: Python, Multi-API integration
+- **Backup**: Local storage + Google Drive
+- **Deployment**: Docker ready
 
-## Core Features
-
-- Real-time memecoin data tracking
-- Scam detection algorithms
-- Historical performance analysis
-- Premium subscription options
-- User watchlists and alerts
-
-## Platform Preview
-
-![Sollarity Dashboard](assets/images/Capture.JPG)
-*Sollarity's intuitive dashboard provides real-time insights into the Solana memecoin market*
-
-![Scam Detection](assets/images/Capture1.JPG)
-*Our advanced algorithms help identify potentially fraudulent tokens before you invest*
-
-## Contact
-
-For business inquiries, please contact us at info@sollarity.io
-
-© 2023 Sollarity. All rights reserved.
+© 2025 Sollarity. All rights reserved.

@@ -1,9 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
+import { getPremiumLimits } from '../../utils/premiumUtils';
 import WatchlistButton from '../watchlist/WatchlistButton';
+import PremiumBanner from '../ui/PremiumBanner';
 
 const CoinTable = ({ coins }) => {
+  const limits = getPremiumLimits();
+  // Don't slice here - let backend handle pagination
+  const displayCoins = coins || [];
+  const hasMoreCoins = false; // Remove this logic since backend handles it
+
   if (!coins || coins.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500 dark:text-gray-400">
@@ -13,7 +20,11 @@ const CoinTable = ({ coins }) => {
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div>
+      {hasMoreCoins && (
+        <PremiumBanner message={`Showing ${limits.maxCoins} of ${coins.length} coins. Upgrade to see all coins!`} />
+      )}
+      <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 border-collapse">
         <thead className="bg-gray-100 dark:bg-gray-700">
           <tr>
@@ -41,22 +52,11 @@ const CoinTable = ({ coins }) => {
           </tr>
         </thead>
         <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-          {coins.map((coin) => (
+          {displayCoins.map((coin) => (
             <tr key={coin.address} className="hover:bg-gray-50 dark:hover:bg-gray-700">
               <td className="px-6 py-4 whitespace-nowrap">
                 <Link to={`/coin/${coin.address}`} className="flex items-center">
-                  {coin.image && coin.image.startsWith('http') ? (
-                    <img 
-                      src={coin.image} 
-                      alt={coin.name} 
-                      className="w-8 h-8 rounded-full mr-3"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                      }}
-                    />
-                  ) : null}
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 mr-3 flex items-center justify-center text-white font-bold text-sm" style={{display: coin.image && coin.image.startsWith('http') ? 'none' : 'flex'}}>
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 mr-3 flex items-center justify-center text-white font-bold text-sm">
                     {coin.symbol.substring(0, 2)}
                   </div>
                   <div>
@@ -115,6 +115,7 @@ const CoinTable = ({ coins }) => {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 };

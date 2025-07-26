@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getCoin, getCoinHistory } from '../services/api';
+import { getPremiumLimits } from '../utils/premiumUtils';
 import PriceChart from '../components/charts/PriceChart';
+import PremiumBanner from '../components/ui/PremiumBanner';
 
 const CoinDetail = () => {
   const { address } = useParams();
@@ -145,7 +147,7 @@ const CoinDetail = () => {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
           <div className="flex items-center mb-4 md:mb-0">
-            {coin.image ? (
+            {getPremiumLimits().showImages && coin.image ? (
               <img
                 src={coin.image}
                 alt={coin.name}
@@ -156,8 +158,8 @@ const CoinDetail = () => {
                 }}
               />
             ) : (
-              <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-600 mr-4 flex items-center justify-center text-lg">
-                {coin.symbol.substring(0, 1)}
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 mr-4 flex items-center justify-center text-lg text-white font-bold">
+                {coin.symbol.substring(0, 2)}
               </div>
             )}
             <div>
@@ -292,25 +294,43 @@ const CoinDetail = () => {
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Price History
             </h2>
-            <div className="flex space-x-2 items-center">
-              <button
-                className="px-3 py-1 text-sm rounded bg-green-600 text-white"
-              >
-                24h Real-Time
-              </button>
-              <span className="text-xs text-green-600 font-medium">
-                🔴 Live Data (Auto-refresh: 2min)
-              </span>
-              <button
-                onClick={() => window.location.reload()}
-                className="px-2 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700"
-              >
-                🔄 Refresh Now
-              </button>
-            </div>
+            {getPremiumLimits().showCharts && (
+              <div className="flex space-x-2 items-center">
+                <button
+                  className="px-3 py-1 text-sm rounded bg-green-600 text-white"
+                >
+                  24h Real-Time
+                </button>
+                <span className="text-xs text-green-600 font-medium">
+                  🔴 Live Data (Auto-refresh: 2min)
+                </span>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-2 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  🔄 Refresh Now
+                </button>
+              </div>
+            )}
           </div>
           
-          <PriceChart priceHistory={priceHistory} timeframe={timeframe} />
+          {getPremiumLimits().showCharts ? (
+            <PriceChart priceHistory={priceHistory} timeframe={timeframe} />
+          ) : (
+            <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-8 text-center">
+              <div className="text-4xl mb-4">📈</div>
+              <h3 className="text-lg font-semibold mb-2">Premium Feature</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Upgrade to Premium to view detailed price charts and historical data
+              </p>
+              <Link
+                to="/subscription"
+                className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Upgrade to Premium
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
