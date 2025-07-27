@@ -5,11 +5,10 @@ import { getPremiumLimits } from '../../utils/premiumUtils';
 import WatchlistButton from '../watchlist/WatchlistButton';
 import PremiumBanner from '../ui/PremiumBanner';
 
-const CoinTable = ({ coins }) => {
+const CoinTable = ({ coins, currentPage, totalPages }) => {
   const limits = getPremiumLimits();
-  // Don't slice here - let backend handle pagination
   const displayCoins = coins || [];
-  const hasMoreCoins = false; // Remove this logic since backend handles it
+  const showUpgradeBanner = !limits.showCharts && currentPage === 1 && totalPages > 1;
 
   if (!coins || coins.length === 0) {
     return (
@@ -21,8 +20,8 @@ const CoinTable = ({ coins }) => {
 
   return (
     <div>
-      {hasMoreCoins && (
-        <PremiumBanner message={`Showing ${limits.maxCoins} of ${coins.length} coins. Upgrade to see all coins!`} />
+      {showUpgradeBanner && (
+        <PremiumBanner message={`You're viewing page 1 of ${totalPages}. Upgrade to Premium to access all ${totalPages} pages and see all coins!`} />
       )}
       <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 border-collapse">

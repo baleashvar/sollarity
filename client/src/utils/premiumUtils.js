@@ -17,11 +17,11 @@ export const getPremiumLimits = () => {
   const isPremium = isPremiumUser();
   
   return {
-    maxCoins: isPremium ? 100 : 20,
+    maxPages: isPremium ? Infinity : 1,
     showCharts: isPremium,
     showImages: isPremium,
     showAdvancedFilters: isPremium,
     showFullDetails: isPremium,
-    coinsPerPage: isPremium ? 100 : 20
+    coinsPerPage: 20 // Always 20 per page
   };
 };

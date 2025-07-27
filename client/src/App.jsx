@@ -13,7 +13,6 @@ import Auth from './pages/Auth';
 import NotFound from './pages/NotFound';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
-import PremiumToggle from './components/ui/PremiumToggle';
 import './App.css';
 
 function App() {
@@ -58,7 +57,6 @@ function App() {
             </Routes>
           </main>
           <Footer />
-          <PremiumToggle />
         </div>
       </Router>
     </PayPalScriptProvider>

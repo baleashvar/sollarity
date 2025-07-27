@@ -8,6 +8,7 @@ import ScamAlerts from '../components/alerts/ScamAlerts';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Alert from '../components/ui/Alert';
 import { getCoins } from '../services/api';
+import { getPremiumLimits } from '../utils/premiumUtils';
 
 const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,6 +21,7 @@ const Dashboard = () => {
   });
   const [totalPages, setTotalPages] = useState(1);
   const [filters, setFilters] = useState({
+    search: '',
     minMarketCap: '',
     maxScamProbability: '',
     lpBurned: false,
@@ -83,6 +85,10 @@ const Dashboard = () => {
   };
 
   const handlePageChange = (newPage) => {
+    // Prevent going to invalid pages
+    if (newPage < 1 || newPage > totalPages) {
+      return;
+    }
     setPage(newPage);
     sessionStorage.setItem('dashboardPage', newPage.toString());
     window.scrollTo(0, 0);
@@ -131,32 +137,34 @@ const Dashboard = () => {
               </div>
             ) : (
               <>
-                <CoinTable coins={coins} />
+                <CoinTable coins={coins} currentPage={page} totalPages={totalPages} />
                 
                 {/* Pagination */}
-                <div className="flex justify-center mt-6">
-                  <nav className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handlePageChange(page - 1)}
-                      disabled={page === 1}
-                      className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 disabled:opacity-50"
-                    >
-                      Previous
-                    </button>
-                    
-                    <span className="px-3 py-1">
-                      Page {page} of {totalPages}
-                    </span>
-                    
-                    <button
-                      onClick={() => handlePageChange(page + 1)}
-                      disabled={page === totalPages}
-                      className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 disabled:opacity-50"
-                    >
-                      Next
-                    </button>
-                  </nav>
-                </div>
+                {totalPages > 1 && (
+                  <div className="flex justify-center mt-6">
+                    <nav className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handlePageChange(page - 1)}
+                        disabled={page === 1}
+                        className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 disabled:opacity-50"
+                      >
+                        Previous
+                      </button>
+                      
+                      <span className="px-3 py-1">
+                        Page {page} of {totalPages}
+                      </span>
+                      
+                      <button
+                        onClick={() => handlePageChange(page + 1)}
+                        disabled={page >= totalPages || (!getPremiumLimits().showCharts && page >= 1)}
+                        className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 disabled:opacity-50"
+                      >
+                        Next
+                      </button>
+                    </nav>
+                  </div>
+                )}
               </>
             )}
           </div>

@@ -8,6 +8,8 @@ const PremiumToggle = () => {
     const newStatus = !premium;
     setPremium(newStatus);
     setPremiumStatus(newStatus);
+    // Reset page to 1 when switching premium status
+    sessionStorage.setItem('dashboardPage', '1');
     window.location.reload(); // Refresh to apply changes
   };
 

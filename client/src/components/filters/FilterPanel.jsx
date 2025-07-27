@@ -35,6 +35,7 @@ const FilterPanel = ({ filters, onFilterChange }) => {
 
   const handleResetFilters = () => {
     const resetFilters = {
+      search: '',
       minMarketCap: '',
       maxScamProbability: '',
       lpBurned: false,
@@ -52,7 +53,21 @@ const FilterPanel = ({ filters, onFilterChange }) => {
         Filters
       </h3>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Search Coin
+          </label>
+          <input
+            type="text"
+            name="search"
+            value={localFilters.search || ''}
+            onChange={handleInputChange}
+            placeholder="Search by name or symbol"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:text-white"
+          />
+        </div>
+        
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Min Market Cap ($)

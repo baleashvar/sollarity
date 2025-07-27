@@ -153,9 +153,7 @@ const TermsOfService = () => {
             <p>
               For questions about these Terms of Service, contact us at:
               <br />
-              Email: legal@sollarity.io
-              <br />
-              Address: [Your Business Address]
+              Email: info@sollarity.xyz
             </p>
           </section>
         </div>

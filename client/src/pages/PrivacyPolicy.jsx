@@ -1,4 +1,5 @@
 import React from 'react';
+import FeedbackWidget from '../components/ui/FeedbackWidget';
 
 const PrivacyPolicy = () => {
   return (
@@ -117,7 +118,7 @@ const PrivacyPolicy = () => {
               <li>• <strong>Restriction:</strong> Limit how we process your data</li>
             </ul>
             <p className="mt-3">
-              To exercise these rights, contact us at privacy@sollarity.io
+              To exercise these rights, contact us at info@sollarity.xyz
             </p>
           </section>
 
@@ -188,11 +189,7 @@ const PrivacyPolicy = () => {
             <p>
               For privacy-related questions or requests:
               <br />
-              Email: privacy@sollarity.io
-              <br />
-              Data Protection Officer: dpo@sollarity.io
-              <br />
-              Address: [Your Business Address]
+              Email: info@sollarity.xyz
             </p>
           </section>
         </div>
@@ -204,6 +201,7 @@ const PrivacyPolicy = () => {
           </p>
         </div>
       </div>
+      <FeedbackWidget />
     </div>
   );
 };

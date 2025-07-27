@@ -14,10 +14,9 @@ export const getCoins = async (page = 1, filters = {}) => {
     const isPremium = user.isPremium || false;
     
     // Build query string from filters  
-    const limit = isPremium ? 100 : 20;
     const queryParams = new URLSearchParams({
       page,
-      limit,
+      limit: 20, // Always 20 per page
       isPremium: isPremium.toString(),
       sort: filters.sort || 'marketCap',
       order: filters.order || 'desc'
@@ -33,6 +32,10 @@ export const getCoins = async (page = 1, filters = {}) => {
     
     if (filters.lpBurned) {
       queryParams.append('lpBurned', 'true');
+    }
+    
+    if (filters.search) {
+      queryParams.append('search', filters.search);
     }
     
     const response = await fetch(`${API_URL}/coins?${queryParams}`);

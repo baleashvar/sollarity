@@ -14,7 +14,8 @@ router.get('/', async (req, res) => {
       order = 'desc',
       minMarketCap,
       maxScamProbability,
-      lpBurned
+      lpBurned,
+      search
     } = req.query;
     
     const filter = {};
@@ -31,10 +32,17 @@ router.get('/', async (req, res) => {
       filter.lpBurned = true;
     }
     
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { symbol: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
     const sortObj = {};
     sortObj[sort] = order === 'desc' ? -1 : 1;
     
-    const actualLimit = isPremium === 'true' ? Math.min(Number(limit), 50) : Math.min(Number(limit), 20);
+    const actualLimit = 20; // Always 20 coins per page for everyone
     
     const coins = await Coin.find(filter)
       .sort(sortObj)
@@ -43,11 +51,17 @@ router.get('/', async (req, res) => {
     
     const total = await Coin.countDocuments(filter);
     
+    const calculatedTotalPages = Math.ceil(total / actualLimit);
+    
+    // For free users, limit to first 20 coins only (1 page)
+    const limitedTotalPages = isPremium === 'true' ? calculatedTotalPages : 1;
+    const limitedCoins = isPremium === 'true' ? coins : coins.slice(0, 20);
+    
     res.json({
-      coins,
-      totalPages: Math.ceil(total / actualLimit),
+      coins: limitedCoins,
+      totalPages: limitedTotalPages,
       currentPage: Number(page),
-      total,
+      total: isPremium === 'true' ? total : Math.min(total, 20),
       isPremium: isPremium === 'true'
     });
   } catch (err) {
