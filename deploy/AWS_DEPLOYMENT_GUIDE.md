@@ -1,21 +1,25 @@
-# AWS Deployment Guide for Sollarity
+# Sollarity AWS Deployment Guide
 
-## Architecture Overview
+**SMTP Configuration Complete:** ses-smtp-user.20250727-231436
+
+## Architecture Overview ✅
 - **Frontend**: AWS S3 + CloudFlare CDN
-- **Backend**: EC2 t2.micro + PM2
+- **Backend**: EC2 t2.micro + PM2  
 - **Database**: MongoDB Atlas
-- **Email**: AWS SES
+- **Email**: AWS SES SMTP (ses-smtp-user.20250727-231436)
 - **Domain**: CloudFlare DNS
+- **Daily Reports**: Automated to sollarity1@gmail.com at 9 AM EST
 
-## Prerequisites
-- AWS Account with billing enabled
-- CloudFlare account
-- Domain: sollarity.xyz
-- GitHub repository
+## Prerequisites ✅
+- AWS Account with billing enabled ✅
+- CloudFlare account ✅
+- Domain: sollarity.xyz ✅
+- GitHub repository ✅
+- AWS SES SMTP credentials ✅
 
-## Step 1: Domain Setup (CloudFlare)
+## Step 1: Domain Setup (CloudFlare) ✅
 
-### 1.1 Add Domain to CloudFlare
+### 1.1 Add Domain to CloudFlare ✅
 ```bash
 1. Login to CloudFlare
 2. Add site: sollarity.xyz
@@ -23,7 +27,7 @@
 4. Wait for DNS propagation (24-48 hours)
 ```
 
-### 1.2 DNS Records
+### 1.2 DNS Records ✅
 ```
 Type    Name    Content                 Proxy
 A       @       YOUR_EC2_IP            ✅ Proxied
@@ -31,9 +35,9 @@ A       api     YOUR_EC2_IP            ✅ Proxied
 CNAME   www     sollarity.xyz          ✅ Proxied
 ```
 
-## Step 2: AWS SES Setup
+## Step 2: AWS SES Setup ✅ 
 
-### 2.1 Verify Domain
+### 2.1 Verify Domain ✅
 ```bash
 1. AWS Console → SES → Verified identities
 2. Create identity → Domain
@@ -43,16 +47,17 @@ CNAME   www     sollarity.xyz          ✅ Proxied
    - CNAME records for DKIM
 ```
 
-### 2.2 Create IAM User for SES
+### 2.2 Create SMTP Credentials ✅
 ```bash
-1. IAM → Users → Create user
-2. Username: sollarity-ses
-3. Attach policy: AmazonSESFullAccess
-4. Create access keys
-5. Save: Access Key ID & Secret Access Key
+1. SES → SMTP settings → Create SMTP credentials
+2. IAM User Name: ses-smtp-user.20250727-231436
+3. SMTP Username: AKIAYGLGAQAVAADF3AWO
+4. SMTP Password: BA3kCfAqIsiTXXn7fd1istkzwIizdz3jYnjmC1nnbs7P
+5. Server: email-smtp.us-east-1.amazonaws.com
+6. Port: 587 (TLS)
 ```
 
-### 2.3 Request Production Access
+### 2.3 Request Production Access ✅
 ```bash
 1. SES → Account dashboard
 2. Request production access
@@ -60,38 +65,87 @@ CNAME   www     sollarity.xyz          ✅ Proxied
 4. Wait for approval (24-48 hours)
 ```
 
+**✅ SMTP Credentials (ACTIVE):**
+- **IAM User**: ses-smtp-user.20250727-231436
+- **SMTP Username**: AKIAYGLGAQAVAADF3AWO  
+- **SMTP Password**: BA3kCfAqIsiTXXn7fd1istkzwIizdz3jYnjmC1nnbs7P
+- **SMTP Server**: email-smtp.us-east-1.amazonaws.com
+- **Port**: 587 (TLS)
+- **From Email**: info@sollarity.xyz
+- **Admin Email**: sollarity1@gmail.com
+
 ## Step 3: EC2 Backend Setup
 
 ### 3.1 Launch EC2 Instance
 ```bash
 1. EC2 → Launch Instance
 2. Name: sollarity-backend
-3. AMI: Amazon Linux 2023
-4. Instance type: t2.micro
+3. AMI: Choose one:
+   - Amazon Linux 2 (recommended)
+   - Ubuntu Server 22.04 LTS
+4. Instance type: t2.micro (Free tier eligible)
 5. Key pair: Create new (download .pem file)
 6. Security group:
    - SSH (22): Your IP
    - HTTP (80): 0.0.0.0/0
    - HTTPS (443): 0.0.0.0/0
    - Custom (5000): 0.0.0.0/0
-7. Launch instance
+7. Storage: 8 GB gp2 (Free tier)
+8. Launch instance
 ```
 
 ### 3.2 Connect to EC2
+
+**For Amazon Linux 2:**
 ```bash
-# Windows (use PuTTY or WSL)
+# Connect
 ssh -i "your-key.pem" ec2-user@YOUR_EC2_IP
 
 # Update system
 sudo yum update -y
 ```
 
-### 3.3 Install Dependencies
+**For Ubuntu 22.04:**
 ```bash
-# Run the setup script
-curl -o setup.sh https://raw.githubusercontent.com/yourusername/sollarity/main/deploy/ec2-setup.sh
-chmod +x setup.sh
-./setup.sh
+# Connect
+ssh -i "your-key.pem" ubuntu@YOUR_EC2_IP
+
+# Update system
+sudo apt update && sudo apt upgrade -y
+```
+
+### 3.3 Install Dependencies
+
+**For Amazon Linux 2:**
+```bash
+# Install Node.js 18
+curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
+sudo yum install -y nodejs
+
+# Install PM2
+sudo npm install -g pm2
+
+# Install Git
+sudo yum install -y git
+
+# Install Python for workers
+sudo yum install -y python3 python3-pip
+```
+
+**For Ubuntu 22.04:**
+```bash
+# Install Node.js 18
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Install PM2
+sudo npm install -g pm2
+
+# Install Git (usually pre-installed)
+sudo apt install -y git
+
+# Install Python for workers
+sudo apt install -y python3 python3-pip
 ```
 
 ### 3.4 Configure Environment
@@ -101,10 +155,11 @@ nano /var/www/sollarity/config/.env
 
 # Update these values:
 NODE_ENV=production
-MONGO_URI=your_mongodb_atlas_connection
-AWS_ACCESS_KEY_ID=your_ses_access_key
-AWS_SECRET_ACCESS_KEY=your_ses_secret_key
+MONGO_URI=mongodb+srv://baleashvar:baleashvar@cluster0.jnyfsoz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+SMTP_USERNAME=AKIAYGLGAQAVAADF3AWO
+SMTP_PASSWORD=BA3kCfAqIsiTXXn7fd1istkzwIizdz3jYnjmC1nnbs7P
 SES_FROM_EMAIL=info@sollarity.xyz
+ADMIN_EMAIL=sollarity1@gmail.com
 FRONTEND_URL=https://sollarity.xyz
 API_URL=https://api.sollarity.xyz
 ```
@@ -122,13 +177,26 @@ pm2 logs
 ```
 
 ### 3.6 Setup Nginx (Optional - for SSL)
+
+**For Amazon Linux 2:**
 ```bash
 sudo yum install -y nginx
 sudo systemctl start nginx
 sudo systemctl enable nginx
+```
 
-# Configure reverse proxy
-sudo nano /etc/nginx/conf.d/sollarity.conf
+**For Ubuntu 22.04:**
+```bash
+sudo apt install -y nginx
+sudo systemctl start nginx
+sudo systemctl enable nginx
+```
+
+**Configure reverse proxy (both systems):**
+```bash
+sudo nano /etc/nginx/sites-available/sollarity  # Ubuntu
+# OR
+sudo nano /etc/nginx/conf.d/sollarity.conf      # Amazon Linux
 ```
 
 Nginx config:
@@ -230,24 +298,39 @@ aws s3 sync client/build/ s3://sollarity-frontend --delete
 
 ## Step 6: MongoDB Atlas Production
 
-### 6.1 Create Production Cluster
+### Option A: Use Existing Cluster0 (Recommended for Launch)
+```bash
+1. Keep using your existing Cluster0
+2. Add EC2 IP to Network Access
+3. Create production database user
+4. Use existing coin data
+5. MONGO_URI: mongodb+srv://baleashvar:baleashvar@cluster0.jnyfsoz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+```
+
+### Option B: Create New Production Cluster (Future)
 ```bash
 1. MongoDB Atlas → Create new cluster
 2. Name: sollarity-production
-3. Tier: M0 (Free) or M2 (Paid)
+3. Tier: M2 ($9/month) for better performance
 4. Region: us-east-1
-5. Create cluster
+5. Migrate data from Cluster0
 ```
 
-### 6.2 Network Access
+### 6.2 Network Access (For Both Options)
 ```bash
 1. Network Access → Add IP Address
 2. Add: YOUR_EC2_IP/32
-3. Comment: EC2 Backend Server
+3. Comment: EC2 Production Server
+4. Keep existing 0.0.0.0/0 for development (optional)
 ```
 
-### 6.3 Database User
+### 6.3 Database User (Recommended)
 ```bash
+# Option A: Use existing user
+Username: baleashvar
+Password: baleashvar
+
+# Option B: Create production user (more secure)
 1. Database Access → Add new user
 2. Username: sollarity-prod
 3. Password: Generate secure password
@@ -271,15 +354,21 @@ curl https://api.sollarity.xyz/api/coins?limit=5
 
 ### 7.3 Test Email Service
 ```bash
-# From EC2
+# From EC2 - Test SMTP connection
 cd /var/www/sollarity/server
 node -e "
 const { sendEmail } = require('./services/emailService');
 sendEmail({
-  to: 'your-email@example.com',
-  subject: 'Test Email',
-  html: '<h1>Test from Sollarity</h1>'
+  to: 'sollarity1@gmail.com',
+  subject: 'Sollarity SMTP Test',
+  html: '<h1>SMTP Test from Sollarity</h1><p>Using ses-smtp-user.20250727-231436</p>'
 }).then(console.log).catch(console.error);
+"
+
+# Test daily registration report
+node -e "
+const { sendDailyRegistrationReport } = require('./services/emailService');
+sendDailyRegistrationReport().then(console.log).catch(console.error);
 "
 ```
 
@@ -325,7 +414,11 @@ deploy\build-frontend.bat
 aws s3 sync client/build/ s3://sollarity-frontend --delete
 
 # Deploy backend changes
+# Amazon Linux 2:
 ssh -i "key.pem" ec2-user@YOUR_EC2_IP
+# Ubuntu 22.04:
+ssh -i "key.pem" ubuntu@YOUR_EC2_IP
+
 cd /var/www/sollarity
 git pull origin main
 cd server
@@ -354,3 +447,5 @@ Your Sollarity platform will be live at:
 - **Frontend**: https://sollarity.xyz
 - **API**: https://api.sollarity.xyz
 - **Email**: info@sollarity.xyz
+- **Admin Reports**: sollarity1@gmail.com (Daily at 9 AM EST)
+- **SMTP User**: ses-smtp-user.20250727-231436

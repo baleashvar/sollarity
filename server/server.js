@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+const { scheduleDailyReport } = require('./utils/scheduler');
 
 dotenv.config({ path: path.join(__dirname, '..', 'config', '.env') });
 
@@ -208,4 +209,7 @@ app.get('/health', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Sollarity server running on port ${PORT}`);
+  
+  // Start daily report scheduler
+  scheduleDailyReport();
 });

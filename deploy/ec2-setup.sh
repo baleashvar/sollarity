@@ -1,62 +1,67 @@
 #!/bin/bash
 # EC2 setup script for Sollarity backend
+# Supports both Amazon Linux 2 and Ubuntu 22.04
 
 echo "Setting up Sollarity on EC2..."
 
-# Update system
-sudo yum update -y
+# Detect OS
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    OS=$NAME
+fi
 
-# Install Node.js 18
-curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
-sudo yum install -y nodejs
+echo "Detected OS: $OS"
 
-# Install PM2 for process management
+# Update system based on OS
+if [[ "$OS" == *"Amazon Linux"* ]]; then
+    echo "Setting up for Amazon Linux 2..."
+    sudo yum update -y
+    
+    # Install Node.js 18
+    curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
+    sudo yum install -y nodejs
+    
+    # Install Git
+    sudo yum install -y git
+    
+    # Install Python
+    sudo yum install -y python3 python3-pip
+    
+    USER_HOME="ec2-user"
+    
+elif [[ "$OS" == *"Ubuntu"* ]]; then
+    echo "Setting up for Ubuntu 22.04..."
+    sudo apt update && sudo apt upgrade -y
+    
+    # Install Node.js 18
+    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+    sudo apt-get install -y nodejs
+    
+    # Install Git
+    sudo apt install -y git
+    
+    # Install Python
+    sudo apt install -y python3 python3-pip
+    
+    USER_HOME="ubuntu"
+    
+else
+    echo "Unsupported OS: $OS"
+    exit 1
+fi
+
+# Install PM2
 sudo npm install -g pm2
-
-# Install Git
-sudo yum install -y git
 
 # Create app directory
 sudo mkdir -p /var/www/sollarity
-sudo chown ec2-user:ec2-user /var/www/sollarity
-
-# Clone repository
-cd /var/www/sollarity
-git clone https://github.com/yourusername/sollarity.git .
-
-# Install dependencies
-cd server
-npm install --production
-
-# Install Python for workers
-sudo yum install -y python3 python3-pip
-pip3 install -r ../workers/requirements.txt
-
-# Setup environment file
-cp ../config/.env.example ../config/.env
-echo "Edit /var/www/sollarity/config/.env with your production values"
-
-# Setup PM2 ecosystem
-cat > ecosystem.config.js << EOF
-module.exports = {
-  apps: [{
-    name: 'sollarity-api',
-    script: 'server.js',
-    cwd: '/var/www/sollarity/server',
-    instances: 1,
-    autorestart: true,
-    watch: false,
-    max_memory_restart: '1G',
-    env: {
-      NODE_ENV: 'production'
-    }
-  }]
-};
-EOF
+sudo chown $USER_HOME:$USER_HOME /var/www/sollarity
 
 echo "EC2 setup completed!"
 echo "Next steps:"
-echo "1. Edit /var/www/sollarity/config/.env"
-echo "2. Run: pm2 start ecosystem.config.js"
-echo "3. Run: pm2 startup"
-echo "4. Run: pm2 save"
+echo "1. Clone your repository to /var/www/sollarity"
+echo "2. Edit /var/www/sollarity/config/.env with production values"
+echo "3. Run: cd /var/www/sollarity/server && npm install --production"
+echo "4. Run: pm2 start ecosystem.config.js"
+echo "5. Run: pm2 startup"
+echo "6. Run: pm2 save"

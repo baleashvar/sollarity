@@ -1,41 +1,28 @@
-const AWS = require('aws-sdk');
+const nodemailer = require('nodemailer');
 
-// Configure AWS SES
-AWS.config.update({
-  region: process.env.AWS_REGION || 'us-east-1',
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+// Configure SMTP transporter
+const transporter = nodemailer.createTransporter({
+  host: 'email-smtp.us-east-1.amazonaws.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USERNAME,
+    pass: process.env.SMTP_PASSWORD
+  }
 });
 
-const ses = new AWS.SES();
-
 const sendEmail = async ({ to, subject, html, text }) => {
-  const params = {
-    Source: process.env.SES_FROM_EMAIL || 'info@sollarity.xyz',
-    Destination: {
-      ToAddresses: Array.isArray(to) ? to : [to]
-    },
-    Message: {
-      Subject: {
-        Data: subject,
-        Charset: 'UTF-8'
-      },
-      Body: {
-        Html: html ? {
-          Data: html,
-          Charset: 'UTF-8'
-        } : undefined,
-        Text: text ? {
-          Data: text,
-          Charset: 'UTF-8'
-        } : undefined
-      }
-    }
+  const mailOptions = {
+    from: process.env.SES_FROM_EMAIL || 'info@sollarity.xyz',
+    to: Array.isArray(to) ? to.join(',') : to,
+    subject,
+    html,
+    text
   };
 
   try {
-    const result = await ses.sendEmail(params).promise();
-    console.log('Email sent successfully:', result.MessageId);
+    const result = await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully:', result.messageId);
     return result;
   } catch (error) {
     console.error('Email sending failed:', error);
@@ -43,20 +30,67 @@ const sendEmail = async ({ to, subject, html, text }) => {
   }
 };
 
-const sendRegistrationNotification = async (userEmail, userAgent) => {
-  const subject = 'New User Registration - Sollarity';
-  const html = `
-    <h2>New User Registration</h2>
-    <p><strong>Email:</strong> ${userEmail}</p>
-    <p><strong>Registration Date:</strong> ${new Date().toLocaleString()}</p>
-    <p><strong>User Agent:</strong> ${userAgent}</p>
-  `;
-  
-  return sendEmail({
-    to: 'info@sollarity.xyz',
-    subject,
-    html
-  });
+const sendDailyRegistrationReport = async () => {
+  try {
+    const User = require('../models/User');
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    // Get users registered in the last 24 hours
+    const newUsers = await User.find({
+      createdAt: {
+        $gte: yesterday,
+        $lt: today
+      }
+    }).select('username email createdAt');
+    
+    if (newUsers.length === 0) {
+      console.log('No new registrations today - skipping email');
+      return;
+    }
+    
+    const subject = `Daily Registration Report - ${newUsers.length} New Users`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #6366f1;">Daily Registration Report</h2>
+        <p><strong>Date:</strong> ${today.toDateString()}</p>
+        <p><strong>New Registrations:</strong> ${newUsers.length}</p>
+        
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+          <thead>
+            <tr style="background: #f3f4f6;">
+              <th style="border: 1px solid #ddd; padding: 12px; text-align: left;">Username</th>
+              <th style="border: 1px solid #ddd; padding: 12px; text-align: left;">Email</th>
+              <th style="border: 1px solid #ddd; padding: 12px; text-align: left;">Registration Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${newUsers.map(user => `
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 12px;">${user.username}</td>
+                <td style="border: 1px solid #ddd; padding: 12px;">${user.email}</td>
+                <td style="border: 1px solid #ddd; padding: 12px;">${new Date(user.createdAt).toLocaleString()}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        
+        <hr>
+        <p style="color: #6b7280; font-size: 12px;">
+          © 2025 Sollarity. Automated daily report.
+        </p>
+      </div>
+    `;
+    
+    return sendEmail({
+      to: process.env.ADMIN_EMAIL || 'sollarity1@gmail.com',
+      subject,
+      html
+    });
+  } catch (error) {
+    console.error('Failed to send daily registration report:', error);
+  }
 };
 
 const sendOTPEmail = async (email, otp, userName) => {
@@ -87,6 +121,6 @@ const sendOTPEmail = async (email, otp, userName) => {
 
 module.exports = {
   sendEmail,
-  sendRegistrationNotification,
+  sendDailyRegistrationReport,
   sendOTPEmail
 };

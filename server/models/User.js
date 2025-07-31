@@ -1,20 +1,21 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const UserSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
     unique: true,
     trim: true,
     minlength: 3,
-    maxlength: 20
+    maxlength: 30
   },
   email: {
     type: String,
     required: true,
     unique: true,
-    lowercase: true
+    lowercase: true,
+    trim: true
   },
   password: {
     type: String,
@@ -25,24 +26,76 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  premiumExpiry: {
+  premiumExpiresAt: {
     type: Date,
     default: null
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  isEmailVerified: {
+    type: Boolean,
+    default: false
+  },
+  emailVerificationToken: {
+    type: String,
+    default: null
+  },
+  otp: {
+    code: String,
+    expiresAt: Date
+  },
+  watchlist: [{
+    coinAddress: String,
+    addedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  paypalSubscriptionId: {
+    type: String,
+    default: null
+  }
+}, {
+  timestamps: true
+});
+
+// Hash password before saving
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
   }
 });
 
-UserSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 12);
-  next();
-});
-
-UserSchema.methods.comparePassword = async function(password) {
-  return await bcrypt.compare(password, this.password);
+// Compare password method
+userSchema.methods.comparePassword = async function(candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.model('User', UserSchema);
+// Generate OTP
+userSchema.methods.generateOTP = function() {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  this.otp = {
+    code: otp,
+    expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+  };
+  return otp;
+};
+
+// Verify OTP
+userSchema.methods.verifyOTP = function(candidateOTP) {
+  if (!this.otp || !this.otp.code || !this.otp.expiresAt) {
+    return false;
+  }
+  
+  if (new Date() > this.otp.expiresAt) {
+    return false;
+  }
+  
+  return this.otp.code === candidateOTP;
+};
+
+module.exports = mongoose.model('User', userSchema);
