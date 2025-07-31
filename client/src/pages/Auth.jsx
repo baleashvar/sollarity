@@ -20,10 +20,10 @@ const Auth = () => {
     try {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
       const body = isLogin 
-        ? { username: formData.username, password: formData.password }
+        ? { usernameOrEmail: formData.username, password: formData.password }
         : formData;
 
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
+      const response = await fetch(`https://api.sollarity.xyz${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
@@ -61,14 +61,15 @@ const Auth = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Username
+              Username or Email
             </label>
             <input
               type="text"
               required
               value={formData.username}
               onChange={(e) => setFormData({...formData, username: e.target.value})}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Enter username or email"
             />
           </div>
 
@@ -82,7 +83,7 @@ const Auth = () => {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
           )}
@@ -97,7 +98,7 @@ const Auth = () => {
               minLength="8"
               value={formData.password}
               onChange={(e) => setFormData({...formData, password: e.target.value})}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Min 8 characters with numbers & symbols"
             />
             <p className="text-xs text-gray-500 mt-1">Use a unique password with numbers and symbols</p>
