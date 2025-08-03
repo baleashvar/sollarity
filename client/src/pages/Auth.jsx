@@ -49,7 +49,7 @@ const Auth = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
       <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-800 dark:text-white">
-          {isLogin ? 'Login to Sollarity' : 'Create Account'}
+          {isLogin ? 'Login to Sollarity - TEST UPDATE' : 'Create Account - TEST UPDATE'}
         </h2>
 
         {error && (
