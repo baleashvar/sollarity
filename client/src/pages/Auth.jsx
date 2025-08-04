@@ -32,11 +32,24 @@ const Auth = () => {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        navigate('/');
+        if (isLogin) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          navigate('/');
+        } else {
+          // Registration successful, go to OTP verification
+          navigate('/verify-otp', { 
+            state: { userId: data.userId, email: data.email } 
+          });
+        }
       } else {
-        setError(data.message);
+        if (data.requiresVerification) {
+          navigate('/verify-otp', { 
+            state: { userId: data.userId, email: formData.username } 
+          });
+        } else {
+          setError(data.message);
+        }
       }
     } catch (err) {
       setError('Connection failed');

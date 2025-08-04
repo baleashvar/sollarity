@@ -181,6 +181,27 @@ const Dashboard = () => {
               Learn more about our methodology →
             </Link>
           </div>
+          
+          <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold mb-4 flex items-center">
+              <span className="mr-2">📢</span> Advertise with Us
+            </h2>
+            <p className="mb-4 opacity-90">
+              Reach 10,000+ crypto enthusiasts and memecoin traders. Promote your project to our engaged community.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link
+                to="/advertise"
+                className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100 transition-colors font-medium text-center"
+              >
+                Start Advertising →
+              </Link>
+              <div className="text-sm opacity-75">
+                <span className="block">✓ Targeted audience</span>
+                <span className="block">✓ Flexible budgets</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

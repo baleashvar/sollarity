@@ -10,16 +10,16 @@ const FeedbackWidget = () => {
     e.preventDefault();
     
     try {
-      const response = await fetch('/api/feedback', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/feedback/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          feedback,
-          email,
-          page: 'privacy',
-          timestamp: new Date().toISOString()
+          name: email || 'Anonymous',
+          email: email || 'anonymous@sollarity.xyz',
+          subject: 'Privacy Page Feedback',
+          message: feedback
         }),
       });
 

@@ -10,6 +10,9 @@ import Subscription from './pages/Subscription';
 import ThankYou from './pages/ThankYou';
 import ScamAlertsPage from './pages/ScamAlertsPage';
 import Auth from './pages/Auth';
+import VerifyOTP from './pages/VerifyOTP';
+import Feedback from './pages/Feedback';
+import Advertise from './pages/Advertise';
 import NotFound from './pages/NotFound';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -51,6 +54,9 @@ function App() {
               <Route path="/thank-you" element={<ThankYou />} />
               <Route path="/scam-alerts" element={<ScamAlertsPage />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/verify-otp" element={<VerifyOTP />} />
+              <Route path="/feedback" element={<Feedback />} />
+              <Route path="/advertise" element={<Advertise />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="*" element={<NotFound />} />

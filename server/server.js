@@ -209,6 +209,8 @@ app.use('/api/refresh', refreshRoutes);
 app.use('/api/data-refresh', dataRefreshRoutes);
 app.use('/api/test', testRoutes);
 app.use('/api/watchlist', watchlistRoutes);
+app.use('/api/feedback', require('./routes/feedback'));
+app.use('/api/advertising', require('./routes/advertising'));
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
