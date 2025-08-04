@@ -4,10 +4,6 @@ const WatchlistButton = ({ coinAddress }) => {
   const [isWatched, setIsWatched] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    checkWatchlistStatus();
-  }, [coinAddress, checkWatchlistStatus]);
-
   const checkWatchlistStatus = async () => {
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -26,6 +22,10 @@ const WatchlistButton = ({ coinAddress }) => {
       console.error('Error checking watchlist:', error);
     }
   };
+
+  useEffect(() => {
+    checkWatchlistStatus();
+  }, [coinAddress]);
 
   const toggleWatchlist = async () => {
     const token = localStorage.getItem('token');

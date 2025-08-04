@@ -9,7 +9,7 @@ const CoinDetail = () => {
   const { address } = useParams();
   const [coin, setCoin] = useState(null);
   const [priceHistory, setPriceHistory] = useState([]);
-  const [timeframe, setTimeframe] = useState('24h');
+  const [timeframe] = useState('24h');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
