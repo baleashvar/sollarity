@@ -11,7 +11,7 @@ import { getCoins } from '../services/api';
 import { getPremiumLimits } from '../utils/premiumUtils';
 
 const Dashboard = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [coins, setCoins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,16 +29,7 @@ const Dashboard = () => {
     order: searchParams.get('order') || 'desc'
   });
 
-  const refreshData = async () => {
-    try {
-      setLoading(true);
-      await fetch('http://localhost:5000/api/data-refresh/complete', { method: 'POST' });
-      setTimeout(fetchCoins, 3000);
-    } catch (err) {
-      console.error('Refresh failed:', err);
-      setLoading(false);
-    }
-  };
+
 
   const fetchCoins = useCallback(async () => {
     try {

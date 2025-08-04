@@ -6,7 +6,7 @@ const WatchlistButton = ({ coinAddress }) => {
 
   useEffect(() => {
     checkWatchlistStatus();
-  }, [coinAddress]);
+  }, [coinAddress, checkWatchlistStatus]);
 
   const checkWatchlistStatus = async () => {
     const token = localStorage.getItem('token');

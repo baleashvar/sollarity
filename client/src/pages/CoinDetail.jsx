@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getCoin, getCoinHistory } from '../services/api';
+import { getCoin } from '../services/api';
 import { getPremiumLimits } from '../utils/premiumUtils';
 import PriceChart from '../components/charts/PriceChart';
-import PremiumBanner from '../components/ui/PremiumBanner';
+
 
 const CoinDetail = () => {
   const { address } = useParams();
@@ -65,9 +65,7 @@ const CoinDetail = () => {
     }
   }, [address, timeframe]);
 
-  const handleTimeframeChange = (newTimeframe) => {
-    setTimeframe(newTimeframe);
-  };
+
 
   // Helper functions for formatting
   const formatCurrency = (value) => {
