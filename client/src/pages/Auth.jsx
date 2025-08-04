@@ -126,13 +126,25 @@ const Auth = () => {
           </button>
         </form>
 
-        <div className="mt-4 text-center">
-          <button
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-indigo-600 hover:underline"
-          >
-            {isLogin ? "Don't have an account? Sign up" : "Already have an account? Login"}
-          </button>
+        <div className="mt-4 text-center space-y-2">
+          {isLogin && (
+            <div>
+              <Link
+                to="/forgot-password"
+                className="text-indigo-600 hover:underline text-sm"
+              >
+                Forgot your password?
+              </Link>
+            </div>
+          )}
+          <div>
+            <button
+              onClick={() => setIsLogin(!isLogin)}
+              className="text-indigo-600 hover:underline"
+            >
+              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Login"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -11,6 +11,7 @@ import ThankYou from './pages/ThankYou';
 import ScamAlertsPage from './pages/ScamAlertsPage';
 import Auth from './pages/Auth';
 import VerifyOTP from './pages/VerifyOTP';
+import ForgotPassword from './pages/ForgotPassword';
 import Advertise from './pages/Advertise';
 import NotFound from './pages/NotFound';
 import TermsOfService from './pages/TermsOfService';
@@ -54,6 +55,7 @@ function App() {
               <Route path="/scam-alerts" element={<ScamAlertsPage />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/verify-otp" element={<VerifyOTP />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/advertise" element={<Advertise />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
