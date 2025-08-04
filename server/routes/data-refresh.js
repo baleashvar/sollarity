@@ -8,7 +8,7 @@ router.post('/complete', async (req, res) => {
   try {
     console.log('Triggering complete data refresh with GeckoTerminal...');
     
-    const scraperPath = path.join(__dirname, '../../workers/real_data_scraper.py');
+    const scraperPath = path.join(__dirname, '../../workers/scraper.py');
     const python = spawn('python', [scraperPath]);
     
     python.stdout.on('data', (data) => {

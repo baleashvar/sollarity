@@ -219,4 +219,16 @@ app.listen(PORT, () => {
   
   // Start daily report scheduler
   scheduleDailyReport();
+  
+  // Auto-refresh data every hour
+  setInterval(async () => {
+    try {
+      const { spawn } = require('child_process');
+      const scraperPath = require('path').join(__dirname, '../workers/scraper.py');
+      console.log('Auto-refreshing coin data...');
+      spawn('python', [scraperPath]);
+    } catch (err) {
+      console.error('Auto-refresh failed:', err);
+    }
+  }, 60 * 60 * 1000); // Every hour
 });
