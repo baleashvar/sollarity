@@ -5,9 +5,13 @@ const FeedbackWidget = () => {
   const [feedback, setFeedback] = useState('');
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
     
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/feedback/submit`, {
@@ -23,6 +27,8 @@ const FeedbackWidget = () => {
         }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
         setSubmitted(true);
         setTimeout(() => {
@@ -31,9 +37,14 @@ const FeedbackWidget = () => {
           setFeedback('');
           setEmail('');
         }, 2000);
+      } else {
+        setError(data.message || 'Failed to submit feedback');
       }
     } catch (error) {
       console.error('Feedback submission failed:', error);
+      setError('Connection failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -59,19 +70,29 @@ const FeedbackWidget = () => {
                 <h3 className="font-semibold">Feedback</h3>
                 <button
                   type="button"
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => {
+                    setIsOpen(false);
+                    setError('');
+                  }}
                   className="text-gray-500 hover:text-gray-700"
                 >
                   ✕
                 </button>
               </div>
               
+              {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-2 py-1 rounded text-xs mb-3">
+                  {error}
+                </div>
+              )}
+              
               <textarea
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 placeholder="Share your thoughts..."
-                className="w-full p-2 border rounded text-sm mb-3 h-20 resize-none"
+                className="w-full p-2 border rounded text-sm mb-3 h-20 resize-none dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 required
+                disabled={loading}
               />
               
               <input
@@ -79,14 +100,16 @@ const FeedbackWidget = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Your email (optional)"
-                className="w-full p-2 border rounded text-sm mb-3"
+                className="w-full p-2 border rounded text-sm mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                disabled={loading}
               />
               
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-700"
+                disabled={loading}
+                className="w-full bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-700 disabled:opacity-50"
               >
-                Send Feedback
+                {loading ? 'Sending...' : 'Send Feedback'}
               </button>
             </form>
           )}

@@ -14,7 +14,7 @@ export const formatCurrency = (value) => {
   } else if (value >= 1000) {
     return `$${(value / 1000).toFixed(2)}K`;
   } else if (value < 0.000001) {
-    return `$${value.toExponential(2)}`;
+    return `$${value.toFixed(8)}`;
   } else {
     return `$${value.toFixed(6)}`;
   }

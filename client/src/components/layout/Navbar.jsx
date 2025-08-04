@@ -64,16 +64,7 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
                   <span className="mr-1">⚠️</span> Scam Alerts
                 </span>
               </Link>
-              <Link 
-                to="/feedback" 
-                className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  isActive('/feedback') 
-                    ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-200' 
-                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
-                }`}
-              >
-                Feedback
-              </Link>
+
             </div>
           </div>
           
@@ -192,17 +183,7 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
                 <span className="mr-1">⚠️</span> Scam Alerts
               </span>
             </Link>
-            <Link 
-              to="/feedback" 
-              className={`block px-3 py-2 rounded-md text-base font-medium ${
-                isActive('/feedback') 
-                  ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-200' 
-                  : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Feedback
-            </Link>
+
           </div>
         </div>
       )}

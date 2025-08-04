@@ -119,7 +119,7 @@ const PrivacyPolicy = () => {
               <li>• <strong>Restriction:</strong> Limit how we process your data</li>
             </ul>
             <p className="mt-3">
-              To exercise these rights, contact us at info@sollarity.xyz
+              To exercise these rights, use the feedback widget below.
             </p>
           </section>
 
@@ -187,18 +187,9 @@ const PrivacyPolicy = () => {
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
               12. Contact Us
             </h2>
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-              <p className="mb-3">
-                For privacy-related questions or requests:
-              </p>
-              <p className="mb-3">📧 Email: info@sollarity.xyz</p>
-              <Link 
-                to="/feedback" 
-                className="inline-block bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
-              >
-                Send Feedback
-              </Link>
-            </div>
+            <p>
+              For privacy-related questions or requests, please use the feedback widget below.
+            </p>
           </section>
         </div>
 
