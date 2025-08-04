@@ -109,13 +109,14 @@ const sendDailyRegistrationReport = async () => {
   }
 };
 
-const sendOTPEmail = async (email, otp, userName) => {
-  const subject = 'Verify Your Sollarity Account';
+const sendOTPEmail = async (email, otp, userName, type = 'Email Verification') => {
+  const isPasswordReset = type === 'Password Reset';
+  const subject = isPasswordReset ? 'Reset Your Password - Sollarity' : 'Verify Your Sollarity Account';
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #6366f1;">Verify Your Sollarity Account</h2>
+      <h2 style="color: #6366f1;">${isPasswordReset ? 'Reset Your Password' : 'Verify Your Sollarity Account'}</h2>
       <p>Hello ${userName || 'User'},</p>
-      <p>Your verification code is:</p>
+      <p>${isPasswordReset ? 'You requested a password reset. Your verification code is:' : 'Your verification code is:'}</p>
       <div style="background: #f3f4f6; padding: 20px; text-align: center; margin: 20px 0;">
         <h1 style="color: #6366f1; font-size: 32px; margin: 0;">${otp}</h1>
       </div>

@@ -92,7 +92,6 @@ router.post('/resend-otp', async (req, res) => {
     const otp = user.generateOTP();
     await user.save();
     
-    const { sendOTPEmail } = require('../services/emailService');
     try {
       await sendOTPEmail(user.email, otp, user.username);
       console.log(`OTP resent to ${user.email}`);
@@ -101,6 +100,59 @@ router.post('/resend-otp', async (req, res) => {
     }
     
     res.json({ message: 'OTP sent successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Forgot Password - Send OTP
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    const otp = user.generateOTP();
+    await user.save();
+    
+    try {
+      await sendOTPEmail(user.email, otp, user.username, 'Password Reset');
+      console.log(`Password reset OTP sent to ${user.email}`);
+    } catch (emailError) {
+      console.error('Failed to send password reset OTP:', emailError);
+    }
+    
+    res.json({ 
+      message: 'Password reset OTP sent to your email',
+      userId: user._id
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Reset Password with OTP
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { userId, otp, newPassword } = req.body;
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    if (!user.verifyOTP(otp)) {
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
+    }
+    
+    user.password = newPassword;
+    user.otp = undefined;
+    await user.save();
+    
+    res.json({ message: 'Password reset successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
