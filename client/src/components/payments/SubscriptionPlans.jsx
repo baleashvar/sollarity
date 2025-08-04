@@ -103,7 +103,7 @@ const SubscriptionPlans = ({ onPlanSelect }) => {
           setPlans(response.data);
         }
       } catch (apiError) {
-        console.error('Error fetching plans from API:', apiError);
+        console.error('Error fetching plans from API:', apiError.message || 'Unknown API error');
         setError('Using default plans - could not connect to server');
       } finally {
         setLoading(false);

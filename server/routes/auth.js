@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { sendOTPEmail } = require('../services/emailService');
 const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'sollarity_secret_key';

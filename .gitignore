@@ -1,48 +1,57 @@
-# Environment variables
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Production builds
+build/
+dist/
+
+# Environment files
 .env
+.env.local
+.env.production
 config/.env
 
-# Node.js
-node_modules/
-npm-debug.log
-yarn-debug.log
-yarn-error.log
-package-lock.json
-yarn.lock
+# Credentials and secrets
+**/credentials.json
+**/drive_credentials.json
+**/*_credentials.json
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-ENV/
-env/
-*.egg-info/
-dist/
-build/
-*.egg
-
-# MongoDB
-memecoin_data.json
+# Logs
 *.log
-workers/scheduler.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# IDE
-.idea/
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Uploads
+uploads/
+**/uploads/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
 .vscode/
+.idea/
 *.swp
 *.swo
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Build files
-client/build/
-client/dist/
-
 # Temporary files
 *.tmp
-*.bak
+*.temp
