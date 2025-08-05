@@ -9,9 +9,8 @@ const API_URL = process.env.REACT_APP_API_URL || 'https://api.sollarity.xyz/api'
  */
 export const getCoins = async (page = 1, filters = {}) => {
   try {
-    // Check if user is premium
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const isPremium = user.isPremium || false;
+    // Temporarily disabled paywall - everyone is premium
+    const isPremium = true;
     
     // Build query string from filters  
     const queryParams = new URLSearchParams({
