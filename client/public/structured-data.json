@@ -1,0 +1,20 @@
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Sollarity",
+  "description": "Solana memecoin analysis platform with real-time data, scam detection, and holder analytics",
+  "url": "https://sollarity.xyz",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Web Browser",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "creator": {
+    "@type": "Organization",
+    "name": "Sollarity",
+    "url": "https://sollarity.xyz"
+  },
+  "keywords": "solana, memecoins, crypto analysis, blockchain, BONK, WIF, scam detection"
+}

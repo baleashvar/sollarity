@@ -7,6 +7,7 @@ import SafeCoins from '../components/coins/SafeCoins';
 import ScamAlerts from '../components/alerts/ScamAlerts';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Alert from '../components/ui/Alert';
+import SEOHead from '../components/SEO/SEOHead';
 import { getCoins } from '../services/api';
 import { getPremiumLimits } from '../utils/premiumUtils';
 
@@ -86,7 +87,14 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <>
+      <SEOHead 
+        title="Sollarity - Solana Memecoin Analysis Dashboard"
+        description="Track top 100 Solana memecoins with real-time data. Analyze BONK, WIF, and other tokens with scam detection, holder analytics, and LP data."
+        keywords="solana memecoins, bonk tracker, solana dashboard, memecoin analytics, crypto analysis, solana tokens"
+        url="https://sollarity.xyz/dashboard"
+      />
+      <div className="space-y-6">
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-8 px-6 rounded-lg shadow-lg mb-6">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold mb-3 text-center sm:text-left">
@@ -204,7 +212,8 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

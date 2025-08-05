@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /verify-otp
+Disallow: /forgot-password
+
+Sitemap: https://sollarity.xyz/sitemap.xml

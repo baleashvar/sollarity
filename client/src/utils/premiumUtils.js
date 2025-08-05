@@ -3,8 +3,10 @@
  */
 
 export const isPremiumUser = () => {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  return user.isPremium || false;
+  // Temporarily disabled paywall - everyone is premium for testing
+  return true;
+  // const user = JSON.parse(localStorage.getItem('user') || '{}');
+  // return user.isPremium || false;
 };
 
 export const setPremiumStatus = (isPremium) => {
