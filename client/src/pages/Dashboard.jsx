@@ -89,9 +89,9 @@ const Dashboard = () => {
   return (
     <>
       <SEOHead 
-        title="Sollarity - Solana Memecoin Analysis Dashboard"
-        description="Track top 100 Solana memecoins with real-time data. Analyze BONK, WIF, and other tokens with scam detection, holder analytics, and LP data."
-        keywords="solana memecoins, bonk tracker, solana dashboard, memecoin analytics, crypto analysis, solana tokens"
+        title="Sollarity Dashboard - Top 100 Solana Memecoins Live Data"
+        description="Real-time Solana memecoin dashboard with scam detection, holder analytics, and LP data. Track BONK, WIF, POPCAT and 97+ other tokens with live market data."
+        keywords="solana memecoin dashboard, bonk price, wif token, solana tokens live, memecoin tracker, crypto dashboard"
         url="https://sollarity.xyz/dashboard"
       />
       <div className="space-y-6">
@@ -103,6 +103,16 @@ const Dashboard = () => {
           <p className="text-xl opacity-90 text-center sm:text-left">
             Discover and analyze Solana memecoins with confidence
           </p>
+          <div className="hidden">
+            <h2>Top Solana Memecoins</h2>
+            <p>Track BONK, WIF, POPCAT, MYRO, and 96+ other Solana tokens with real-time data, scam detection, and holder analytics.</p>
+            <ul>
+              <li>BONK - Solana's leading memecoin with community governance</li>
+              <li>WIF - Dogwifhat token with strong community support</li>
+              <li>POPCAT - Popular cat-themed memecoin on Solana</li>
+              <li>MYRO - Community-driven Solana memecoin</li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -129,6 +139,13 @@ const Dashboard = () => {
             <FilterPanel filters={filters} onFilterChange={handleFilterChange} />
             
             {error && <Alert type="error" message={error} />}
+            
+            <noscript>
+              <div className="p-4 bg-gray-100 rounded">
+                <h3>Solana Memecoin Dashboard</h3>
+                <p>This page displays real-time data for the top 100 Solana memecoins including BONK, WIF, POPCAT, and others. Enable JavaScript to view live data.</p>
+              </div>
+            </noscript>
             
             {loading ? (
               <div className="flex justify-center py-8">

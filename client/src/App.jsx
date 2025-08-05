@@ -16,6 +16,7 @@ import Advertise from './pages/Advertise';
 import NotFound from './pages/NotFound';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import Sitemap from './pages/Sitemap';
 import './App.css';
 
 function App() {
@@ -57,6 +58,7 @@ function App() {
               <Route path="/verify-otp" element={<VerifyOTP />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/advertise" element={<Advertise />} />
+              <Route path="/sitemap.xml" element={<Sitemap />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="*" element={<NotFound />} />
