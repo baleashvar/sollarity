@@ -76,16 +76,13 @@ app.get('/api/coins', async (req, res) => {
     const total = await Coin.countDocuments(filter);
     const calculatedTotalPages = Math.ceil(total / actualLimit);
     
-    // For free users, limit to first 20 coins only (1 page)
-    const limitedTotalPages = isPremium === 'true' ? calculatedTotalPages : 1;
-    const limitedCoins = isPremium === 'true' ? coins : coins.slice(0, 20);
-    
+    // Temporarily disabled paywall - everyone gets full access
     res.json({
-      coins: limitedCoins,
-      totalPages: limitedTotalPages,
+      coins: coins,
+      totalPages: calculatedTotalPages,
       currentPage: Number(page),
-      total: isPremium === 'true' ? total : Math.min(total, 20),
-      isPremium: isPremium === 'true'
+      total: total,
+      isPremium: true // Everyone is premium during beta
     });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
