@@ -156,7 +156,7 @@ const Dashboard = () => {
                       
                       <button
                         onClick={() => handlePageChange(page + 1)}
-                        disabled={page >= totalPages || (!getPremiumLimits().showCharts && page >= 1)}
+                        disabled={page >= totalPages}
                         className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 disabled:opacity-50"
                       >
                         Next

@@ -59,11 +59,19 @@ const Subscription = () => {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Upgrade Your Experience
+            Premium Features
           </h1>
           <p className="mt-2 text-lg text-gray-600 dark:text-gray-300">
             Get premium features and support the development of Sollarity
           </p>
+          <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+            <p className="text-green-800 dark:text-green-200 font-medium">
+              🎉 All users are currently enjoying premium features for free during our beta phase!
+            </p>
+            <p className="text-green-700 dark:text-green-300 text-sm mt-1">
+              Premium features will become billable after the beta period ends.
+            </p>
+          </div>
         </div>
 
         {step === 'select-plan' && (
@@ -72,12 +80,14 @@ const Subscription = () => {
             
             <div className="mt-8 text-center">
               <button
-                onClick={handleProceedToPayment}
-                disabled={!selectedPlan || !planSelectionStable}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-md disabled:opacity-50"
+                disabled
+                className="bg-gray-400 text-white font-medium py-2 px-6 rounded-md cursor-not-allowed"
               >
-                Continue to Payment
+                Payment Temporarily Disabled
               </button>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Enjoy all premium features for free during beta!
+              </p>
             </div>
           </div>
         )}
