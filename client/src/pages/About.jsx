@@ -1,66 +1,48 @@
 import React from 'react';
+import SEOHead from '../components/SEO/SEOHead';
 
 const About = () => {
   return (
-    <div className="max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">About Sollarity</h1>
-      
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Our Mission</h2>
-        <p className="text-gray-700 dark:text-gray-300 mb-4">
-          <strong>Sollarity</strong> - the name combines "Solana" and "clarity" - represents our mission to bring clarity to the complex world of Solana-based memecoin investments. As a specialized Solana memecoin analysis platform, we provide the insights you need to navigate this exciting but volatile market with confidence.
-        </p>
-        <p className="text-gray-700 dark:text-gray-300 mb-4">
-          Our data-driven platform is designed to provide transparency and comprehensive analytics, risk assessments, and real-time data specifically for Solana-based meme tokens.
-        </p>
-        <p className="text-gray-700 dark:text-gray-300">
-          In the rapidly evolving world of cryptocurrency, especially in the memecoin sector, it can be challenging to 
-          separate legitimate projects from potential scams. Sollarity aims to solve this problem by analyzing various 
-          metrics and indicators to identify red flags and highlight promising opportunities.
-        </p>
+    <>
+      <SEOHead 
+        title="About Sollarity - Solana Memecoin Analysis Platform"
+        description="Learn how Sollarity helps traders analyze Solana memecoins with real-time data, scam detection, and holder analytics. Discover our methodology and features."
+        keywords="about sollarity, solana memecoin analysis, crypto analysis platform, solana token tracker"
+        url="https://sollarity.xyz/about"
+      />
+      <div className="max-w-4xl mx-auto py-8">
+        <h1 className="text-4xl font-bold mb-6">About Sollarity</h1>
+        
+        <div className="prose prose-lg max-w-none">
+          <p className="text-xl text-gray-600 mb-8">
+            Sollarity is the leading Solana memecoin analysis platform, providing traders with real-time data, 
+            scam detection, and comprehensive analytics to make informed investment decisions.
+          </p>
+          
+          <h2 className="text-2xl font-semibold mt-8 mb-4">Our Mission</h2>
+          <p>
+            To democratize access to professional-grade cryptocurrency analysis tools, helping traders navigate 
+            the volatile world of Solana memecoins with confidence and data-driven insights.
+          </p>
+          
+          <h2 className="text-2xl font-semibold mt-8 mb-4">Key Features</h2>
+          <ul className="list-disc pl-6 space-y-2">
+            <li><strong>Real-time Data</strong>: Track the top 100 Solana tokens with live price updates</li>
+            <li><strong>Scam Detection</strong>: Advanced algorithms to identify potential scam tokens</li>
+            <li><strong>Holder Analytics</strong>: Analyze token distribution and whale movements</li>
+            <li><strong>LP Analysis</strong>: Monitor liquidity pool locks and burns</li>
+            <li><strong>Market Intelligence</strong>: Comprehensive market cap and volume data</li>
+          </ul>
+          
+          <h2 className="text-2xl font-semibold mt-8 mb-4">Why Choose Sollarity?</h2>
+          <p>
+            Unlike other platforms, Sollarity focuses specifically on the Solana ecosystem, providing 
+            specialized tools and insights that generic crypto trackers can't match. Our platform combines 
+            multiple data sources to give you the most accurate and up-to-date information available.
+          </p>
+        </div>
       </div>
-      
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Key Features</h2>
-        <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2">
-          <li>Real-time tracking of Solana memecoin market data</li>
-          <li>Advanced scam detection algorithms</li>
-          <li>Historical performance analysis</li>
-          <li>Liquidity and trading volume monitoring</li>
-          <li>Risk assessment scores for each token</li>
-          <li>Watchlist functionality for tracking favorite coins</li>
-          <li>Alerts for suspicious activity or significant price movements</li>
-        </ul>
-      </div>
-      
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Our Technology</h2>
-        <p className="text-gray-700 dark:text-gray-300 mb-4">
-          Sollarity leverages a combination of blockchain data analysis, machine learning algorithms, and traditional 
-          financial metrics to provide comprehensive insights. Our platform continuously monitors on-chain activity, 
-          social media sentiment, and market movements to deliver the most accurate and up-to-date information.
-        </p>
-        <p className="text-gray-700 dark:text-gray-300">
-          We use a variety of data sources including Solana RPC nodes, DEX APIs, and specialized blockchain analytics 
-          tools to gather and process information. Our risk assessment model considers factors such as liquidity depth, 
-          holder concentration, contract code quality, and team transparency.
-        </p>
-      </div>
-      
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Disclaimer</h2>
-        <p className="text-gray-700 dark:text-gray-300 mb-4">
-          While we strive to provide accurate and reliable information, cryptocurrency investments, especially memecoins, 
-          are inherently risky. The information provided on Sollarity should not be considered financial advice. Always 
-          conduct your own research before making investment decisions.
-        </p>
-        <p className="text-gray-700 dark:text-gray-300">
-          Sollarity is not responsible for any financial losses incurred from using the information provided on our platform. 
-          Our risk assessments are based on available data and algorithms which may not capture all potential risks or 
-          opportunities in the market.
-        </p>
-      </div>
-    </div>
+    </>
   );
 };
 
