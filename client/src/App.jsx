@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
+import DonationWidget from './components/DonationWidget';
 import Dashboard from './pages/Dashboard';
 import CoinDetail from './pages/CoinDetail';
 import About from './pages/About';
@@ -65,6 +66,7 @@ function App() {
             </Routes>
           </main>
           <Footer />
+          <DonationWidget />
         </div>
       </Router>
     </PayPalScriptProvider>

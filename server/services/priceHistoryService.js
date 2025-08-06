@@ -97,21 +97,43 @@ class PriceHistoryService {
     try {
       // Find by address first, fallback to symbol
       let coin = await Coin.findOne({ address }, 'symbol');
-      if (!coin) return [];
+      if (!coin) {
+        console.log(`Coin not found for address: ${address}`);
+        return [];
+      }
       
       const history = await PriceHistory.findOne({ symbol: coin.symbol });
-      if (!history || !history.prices) return [];
+      if (!history || !history.prices || history.prices.length === 0) {
+        console.log(`No price history for ${coin.symbol}`);
+        // Return mock data if no history exists
+        const currentCoin = await Coin.findOne({ address });
+        if (currentCoin && currentCoin.price) {
+          const now = Date.now();
+          const mockData = [];
+          for (let i = 23; i >= 0; i--) {
+            mockData.push({
+              t: now - (i * 60 * 60 * 1000),
+              c: currentCoin.price * (1 + (Math.random() - 0.5) * 0.05),
+              v: 1000
+            });
+          }
+          return mockData;
+        }
+        return [];
+      }
       
       // Filter last 24h only
       const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
       const recentPrices = history.prices
         .filter(p => p.t >= oneDayAgo)
+        .sort((a, b) => a.t - b.t)
         .map(p => ({
           t: p.t.getTime(),
           c: p.p,
-          v: 1000 // mock volume
+          v: 1000
         }));
       
+      console.log(`Found ${recentPrices.length} price points for ${coin.symbol}`);
       return recentPrices;
       
     } catch (error) {
