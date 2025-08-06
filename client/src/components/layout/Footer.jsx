@@ -36,9 +36,6 @@ const Footer = () => {
               © {new Date().getFullYear()} Sollarity. All rights reserved.
             </p>
             <div className="mt-2 md:mt-0 flex space-x-4">
-              <Link to="/dashboard" className="text-sm text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400">
-                Dashboard
-              </Link>
               <Link to="/about" className="text-sm text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400">
                 About
               </Link>

@@ -28,9 +28,19 @@ const PriceChart = ({ priceHistory, timeframe }) => {
   if (!priceHistory || priceHistory.length === 0) {
     return (
       <div className="h-64 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center">
-        <p className="text-gray-500 dark:text-gray-400">
-          No price history available
-        </p>
+        <div className="text-center">
+          <div className="w-12 h-12 mx-auto mb-3 text-gray-400">
+            <svg fill="currentColor" viewBox="0 0 24 24">
+              <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+            </svg>
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
+            No price data yet
+          </p>
+          <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">
+            Data collection in progress
+          </p>
+        </div>
       </div>
     );
   }

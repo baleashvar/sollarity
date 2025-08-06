@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 const { scheduleDailyReport } = require('./utils/scheduler');
+const priceHistoryService = require('./services/priceHistoryService');
 
 dotenv.config({ path: path.join(__dirname, '..', 'config', '.env') });
 
@@ -126,64 +127,26 @@ app.get('/api/coins/safe', async (req, res) => {
   }
 });
 
-// Real-time 24h price history
+// Real-time price history
 app.get('/api/analytics/history', async (req, res) => {
   try {
     const { address, timeframe = '24h' } = req.query;
     
-    // Only support 24h for real-time data
-    if (timeframe !== '24h') {
-      return res.json({ tf: timeframe, points: [] });
+    console.log(`📊 Fetching price history for ${address} (${timeframe})`);
+    
+    // Get price history from service
+    const points = await priceHistoryService.getPriceHistory(address, timeframe);
+    
+    // Return empty if no data (don't generate mock data to save resources)
+    if (points.length === 0) {
+      return res.json({ tf: timeframe, points: [], message: 'No data yet' });
     }
     
-    const now = new Date();
-    const from = new Date(now - 24 * 60 * 60 * 1000); // 24 hours ago
-    
-    // Try real-time data first, fallback to price history
-    let realData = [];
-    
-    try {
-      // Try realtime_prices collection
-      const RealtimePrices = mongoose.model('realtime_prices', new mongoose.Schema({
-        address: String,
-        symbol: String,
-        price: Number,
-        timestamp: Date
-      }));
-      
-      realData = await RealtimePrices.find({
-        address: address,
-        timestamp: { $gte: from },
-        price: { $gt: 0 }
-      }).sort({ timestamp: 1 });
-      
-      console.log(`Found ${realData.length} real-time points for ${address}`);
-    } catch (err) {
-      console.log('Real-time collection not found, trying price history...');
-    }
-    
-    // Fallback to existing price history if no real-time data
-    if (realData.length === 0) {
-      realData = await PriceHistory.find({
-        coinAddress: address,
-        timestamp: { $gte: from },
-        price: { $gt: 0, $ne: null }
-      }).sort({ timestamp: 1 });
-      
-      console.log(`Found ${realData.length} fallback points for ${address}`);
-    }
-    
-    const points = realData.map(point => ({
-      t: point.timestamp ? point.timestamp.getTime() : new Date(point.timestamp).getTime(),
-      c: point.price || parseFloat(point.price),
-      v: point.volume || 1000
-    }));
-    
-    console.log(`[REAL] ${address} 24h ${points.length} real data points`);
-    
+    console.log(`📊 Returning ${points.length} real points for ${address}`);
     res.json({ tf: timeframe, points, isReal: true });
+    
   } catch (err) {
-    console.error('Real-time data error:', err);
+    console.error('Price history error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -213,21 +176,46 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Sollarity server running on port ${PORT}`);
+app.listen(PORT, async () => {
+  console.log(`🚀 Sollarity server running on port ${PORT}`);
   
-  // Start daily report scheduler
+  // Start services
   scheduleDailyReport();
   
-  // Auto-refresh data every hour
+  // Start price history service
+  await priceHistoryService.start();
+  
+  // Auto-refresh coin data every 20 minutes (offset from price collection)
   setInterval(async () => {
     try {
       const { spawn } = require('child_process');
       const scraperPath = require('path').join(__dirname, '../workers/scraper.py');
-      console.log('Auto-refreshing coin data...');
+      console.log('🔄 Scraping...');
+      
+      const scraper = spawn('python', [scraperPath]);
+      
+      scraper.on('close', (code) => {
+        if (code === 0) {
+          console.log('✅ Scrape done');
+        } else {
+          console.log(`❌ Scrape failed: ${code}`);
+        }
+      });
+      
+    } catch (err) {
+      console.error('❌ Scraper error:', err.message);
+    }
+  }, 20 * 60 * 1000); // Every 20 minutes
+  
+  // Run scraper after 30 seconds
+  setTimeout(async () => {
+    try {
+      const { spawn } = require('child_process');
+      const scraperPath = require('path').join(__dirname, '../workers/scraper.py');
+      console.log('🚀 Initial scrape...');
       spawn('python', [scraperPath]);
     } catch (err) {
-      console.error('Auto-refresh failed:', err);
+      console.error('❌ Initial scrape failed:', err.message);
     }
-  }, 60 * 60 * 1000); // Every hour
+  }, 30000); // Wait 30 seconds
 });
