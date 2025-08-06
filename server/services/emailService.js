@@ -2,8 +2,8 @@ const nodemailer = require('nodemailer');
 
 // Configure SMTP transporter
 const transporter = nodemailer.createTransport({
-  host: 'email-smtp.us-east-1.amazonaws.com',
-  port: 587,
+  host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
+  port: process.env.SMTP_PORT || 587,
   secure: false,
   auth: {
     user: process.env.SMTP_USERNAME,
