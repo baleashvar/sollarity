@@ -66,7 +66,7 @@ function App() {
             </Routes>
           </main>
           <Footer />
-          <DonationWidget />
+          {/* <DonationWidget /> */}
         </div>
       </Router>
     </PayPalScriptProvider>
