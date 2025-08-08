@@ -15,7 +15,7 @@ if (!fs.existsSync(uploadsDir)) {
 router.options('/submit', (req, res) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.sendStatus(200);
 });
 
@@ -36,6 +36,7 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024 // 10MB limit
   },
   fileFilter: (req, file, cb) => {
+    console.log('📁 File upload attempt:', file.originalname, file.mimetype);
     const allowedTypes = /jpeg|jpg|png|pdf/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
@@ -52,7 +53,7 @@ const upload = multer({
 router.post('/submit', (req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();
 }, upload.single('adFile'), async (req, res) => {
   try {
@@ -85,6 +86,8 @@ router.post('/submit', (req, res, next) => {
       subject: `New Advertising Request from ${companyName}`,
       html: emailContent
     });
+    
+    console.log('📧 Admin email sent successfully');
 
     // Send confirmation email to advertiser
     await sendEmail({
@@ -106,7 +109,16 @@ router.post('/submit', (req, res, next) => {
 
   } catch (error) {
     console.error('Advertising submission error:', error);
-    res.status(500).json({ message: 'Failed to submit advertising request' });
+    
+    // Handle multer errors specifically
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ message: 'File too large. Maximum size is 10MB.' });
+    }
+    if (error.code === 'LIMIT_UNEXPECTED_FILE') {
+      return res.status(400).json({ message: 'Invalid file upload.' });
+    }
+    
+    res.status(500).json({ message: 'Failed to submit advertising request: ' + error.message });
   }
 });
 
