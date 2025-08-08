@@ -255,6 +255,11 @@ const Advertise = () => {
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             />
             <p className="text-xs text-gray-500 mt-1">Supported formats: JPG, PNG, PDF (Max 5MB)</p>
+            <div className="mt-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
+              <p className="text-xs text-yellow-800 dark:text-yellow-200">
+                <strong>Note:</strong> If upload fails, try uploading a smaller image or submit without uploading an image. You can always send files via email later.
+              </p>
+            </div>
           </div>
 
           <div>
