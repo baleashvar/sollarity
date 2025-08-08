@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const { scheduleDailyReport } = require('./utils/scheduler');
 const priceHistoryService = require('./services/priceHistoryService');
+const dataService = require('./services/dataService');
 
 dotenv.config({ path: path.join(__dirname, '..', 'config', '.env') });
 
@@ -185,37 +186,24 @@ app.listen(PORT, async () => {
   // Start price history service
   await priceHistoryService.start();
   
-  // Auto-refresh coin data every 20 minutes (offset from price collection)
+  // Auto-refresh coin data every 30 minutes using accurate API
   setInterval(async () => {
     try {
-      const { spawn } = require('child_process');
-      const scraperPath = require('path').join(__dirname, '../workers/scraper.py');
-      console.log('🔄 Scraping...');
-      
-      const scraper = spawn('python', [scraperPath]);
-      
-      scraper.on('close', (code) => {
-        if (code === 0) {
-          console.log('✅ Scrape done');
-        } else {
-          console.log(`❌ Scrape failed: ${code}`);
-        }
-      });
-      
+      console.log('🔄 Refreshing data...');
+      const count = await dataService.refreshAllData();
+      console.log(`✅ Refreshed ${count} tokens`);
     } catch (err) {
-      console.error('❌ Scraper error:', err.message);
+      console.error('❌ Data refresh error:', err.message);
     }
-  }, 20 * 60 * 1000); // Every 20 minutes
+  }, 30 * 60 * 1000); // Every 30 minutes
   
-  // Run scraper after 30 seconds
+  // Initial data load
   setTimeout(async () => {
     try {
-      const { spawn } = require('child_process');
-      const scraperPath = require('path').join(__dirname, '../workers/scraper.py');
-      console.log('🚀 Initial scrape...');
-      spawn('python', [scraperPath]);
+      console.log('🚀 Initial data load...');
+      await dataService.refreshAllData();
     } catch (err) {
-      console.error('❌ Initial scrape failed:', err.message);
+      console.error('❌ Initial data load failed:', err.message);
     }
-  }, 30000); // Wait 30 seconds
+  }, 10000); // Wait 10 seconds
 });

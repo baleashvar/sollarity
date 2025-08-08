@@ -1,37 +1,44 @@
 const express = require('express');
+const dataService = require('../services/dataService');
 const router = express.Router();
-const { spawn } = require('child_process');
-const path = require('path');
 
-// Trigger complete data refresh
-router.post('/complete', async (req, res) => {
+// Manual data refresh endpoint
+router.post('/refresh', async (req, res) => {
   try {
-    console.log('Triggering complete data refresh with GeckoTerminal...');
-    
-    const scraperPath = path.join(__dirname, '../../workers/scraper.py');
-    const python = spawn('python', [scraperPath]);
-    
-    python.stdout.on('data', (data) => {
-      console.log(`Scraper: ${data}`);
-    });
-    
-    python.stderr.on('data', (data) => {
-      console.error(`Scraper Error: ${data}`);
-    });
-    
-    python.on('close', (code) => {
-      console.log(`Complete scraper finished with code ${code}`);
-    });
-    
+    console.log('🔄 Manual data refresh requested...');
+    const count = await dataService.refreshAllData();
     res.json({ 
-      message: 'Complete data refresh triggered', 
-      status: 'running',
-      source: 'GeckoTerminal API',
-      includes: 'coins + price history'
+      success: true, 
+      message: `Successfully refreshed ${count} tokens`,
+      count: count
     });
   } catch (error) {
-    console.error('Refresh error:', error);
-    res.status(500).json({ error: 'Failed to refresh data' });
+    console.error('❌ Manual refresh failed:', error.message);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Data refresh failed',
+      error: error.message 
+    });
+  }
+});
+
+// Get refresh status
+router.get('/status', async (req, res) => {
+  try {
+    const Coin = require('../models/Coin');
+    const count = await Coin.countDocuments();
+    const latest = await Coin.findOne().sort({ lastUpdated: -1 });
+    
+    res.json({
+      totalTokens: count,
+      lastUpdated: latest?.lastUpdated || null,
+      status: 'active'
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: 'Status check failed' 
+    });
   }
 });
 
