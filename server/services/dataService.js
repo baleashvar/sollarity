@@ -152,6 +152,7 @@ class DataService {
       const price = parseFloat(token.priceData?.price || 0);
       const supply = parseFloat(token.priceData?.supply || 0);
       const marketCap = price * supply;
+      const liquidity = parseFloat(token.priceData?.liquidity || 0);
       
       return {
         address: token.address,
@@ -161,10 +162,16 @@ class DataService {
         marketCap: marketCap,
         volume24h: parseFloat(token.priceData?.volume24h || 0),
         priceChange24h: parseFloat(token.priceData?.priceChange24h || 0) / 100,
-        liquidityUSD: parseFloat(token.priceData?.liquidity || 0),
+        liquidityUSD: liquidity,
         holderCount: 0,
         lpBurned: false,
-        scamProbability: marketCap < 100000 ? 0.7 : 0.3,
+        scamProbability: this.calculateRiskScore({
+          liquidity: { usd: liquidity },
+          price: price,
+          realSupply: supply,
+          freeze_authority: false,
+          numberMarkets: 1
+        }),
         image: token.logoURI || this.getTokenImage(token.symbol),
         supply: supply,
         lastUpdated: new Date()
@@ -274,6 +281,7 @@ class DataService {
       const price = parseFloat(pair.priceUsd || 0);
       const supply = parseFloat(pair.baseToken?.totalSupply || 0);
       const marketCap = parseFloat(pair.marketCap || price * supply);
+      const liquidity = parseFloat(pair.liquidity?.usd || 0);
       
       return {
         address: pair.baseToken.address,
@@ -283,10 +291,16 @@ class DataService {
         marketCap: marketCap,
         volume24h: parseFloat(pair.volume?.h24 || 0),
         priceChange24h: parseFloat(pair.priceChange?.h24 || 0) / 100,
-        liquidityUSD: parseFloat(pair.liquidity?.usd || 0),
+        liquidityUSD: liquidity,
         holderCount: 0,
         lpBurned: false,
-        scamProbability: marketCap < 100000 ? 0.7 : 0.3,
+        scamProbability: this.calculateRiskScore({
+          liquidity: { usd: liquidity },
+          price: price,
+          realSupply: supply,
+          freeze_authority: false,
+          numberMarkets: 2
+        }),
         image: pair.info?.imageUrl || this.getTokenImage(pair.baseToken.symbol),
         supply: supply,
         lastUpdated: new Date()
