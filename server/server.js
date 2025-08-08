@@ -123,7 +123,7 @@ app.get('/api/coins/safe', async (req, res) => {
   try {
     // Get coins with risk analysis available, sorted by lowest risk
     const coins = await Coin.find({ 
-      scamProbability: { $exists: true, $ne: null, $lt: 0.5 },
+      scamProbability: { $exists: true, $ne: null, $lte: 0.3 },
       marketCap: { $gt: 100000 } // Only coins with decent market cap
     })
     .sort({ scamProbability: 1, marketCap: -1 })

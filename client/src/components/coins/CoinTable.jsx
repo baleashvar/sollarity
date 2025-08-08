@@ -100,14 +100,14 @@ const CoinTable = ({ coins, currentPage, totalPages }) => {
               <td className="px-6 py-4 whitespace-nowrap text-center">
                 <div className="flex justify-center">
                   <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                    coin.scamProbability < 0.3
+                    coin.scamProbability <= 0.3
                       ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100'
-                      : coin.scamProbability < 0.7
+                      : coin.scamProbability <= 0.7
                       ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100'
                       : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100'
                   }`}>
-                    {coin.scamProbability < 0.3 ? 'Low Risk' : 
-                     coin.scamProbability < 0.7 ? 'Medium Risk' : 'High Risk'}
+                    {coin.scamProbability <= 0.3 ? 'Low Risk' : 
+                     coin.scamProbability <= 0.7 ? 'Medium Risk' : 'High Risk'}
                   </div>
                 </div>
               </td>
