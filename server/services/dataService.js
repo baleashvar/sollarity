@@ -154,14 +154,121 @@ class DataService {
     })).filter(token => token.address && token.symbol && token.name !== 'Unknown');
   }
 
+  async fetchFromHelius() {
+    try {
+      console.log('🔍 Fetching from Helius API...');
+      
+      const response = await axios.get('https://api.helius.xyz/v0/token-metadata', {
+        headers: {
+          'Authorization': `Bearer ${process.env.HELIUS_API_KEY}`
+        },
+        params: {
+          'mint-accounts': 'popular', // Get popular tokens
+          'limit': 200
+        },
+        timeout: 30000
+      });
+
+      if (response.data && Array.isArray(response.data)) {
+        console.log(`✅ Fetched ${response.data.length} tokens from Helius`);
+        return this.processHeliusData(response.data);
+      }
+
+      return [];
+    } catch (error) {
+      console.error('❌ Helius API error:', error.message);
+      return [];
+    }
+  }
+
+  async fetchFromCoinGecko() {
+    try {
+      console.log('🔍 Fetching from CoinGecko API...');
+      
+      const response = await axios.get('https://api.coingecko.com/api/v3/coins/markets', {
+        params: {
+          'vs_currency': 'usd',
+          'category': 'solana-ecosystem',
+          'order': 'market_cap_desc',
+          'per_page': 250,
+          'page': 1
+        },
+        timeout: 30000
+      });
+
+      if (response.data && Array.isArray(response.data)) {
+        console.log(`✅ Fetched ${response.data.length} tokens from CoinGecko`);
+        return this.processCoinGeckoData(response.data);
+      }
+
+      return [];
+    } catch (error) {
+      console.error('❌ CoinGecko API error:', error.message);
+      return [];
+    }
+  }
+
+  processHeliusData(tokens) {
+    return tokens.map(token => ({
+      address: token.mint || token.address,
+      name: token.onChainMetadata?.metadata?.name || token.name || 'Unknown',
+      symbol: token.onChainMetadata?.metadata?.symbol || token.symbol || 'UNK',
+      price: 0,
+      marketCap: 0,
+      volume24h: 0,
+      priceChange24h: 0,
+      liquidityUSD: 0,
+      holderCount: 0,
+      lpBurned: false,
+      scamProbability: 0.5,
+      image: token.onChainMetadata?.metadata?.image || '',
+      supply: 0,
+      lastUpdated: new Date()
+    })).filter(token => token.address && token.symbol);
+  }
+
+  processCoinGeckoData(tokens) {
+    return tokens.map(token => ({
+      address: token.id, // CoinGecko uses ID, we'll need to map this
+      name: token.name || 'Unknown',
+      symbol: token.symbol?.toUpperCase() || 'UNK',
+      price: parseFloat(token.current_price || 0),
+      marketCap: parseFloat(token.market_cap || 0),
+      volume24h: parseFloat(token.total_volume || 0),
+      priceChange24h: parseFloat(token.price_change_percentage_24h || 0) / 100,
+      liquidityUSD: 0,
+      holderCount: 0,
+      lpBurned: false,
+      scamProbability: token.market_cap < 1000000 ? 0.7 : 0.3,
+      image: token.image || '',
+      supply: parseFloat(token.circulating_supply || 0),
+      lastUpdated: new Date()
+    })).filter(token => token.price > 0);
+  }
+
   async refreshAllData() {
     try {
-      let tokens = await this.fetchTop1000SolanaTokens();
+      let tokens = [];
       
-      // If Birdeye fails, use Jupiter as fallback
+      // Try Birdeye first
+      tokens = await this.fetchTop1000SolanaTokens();
+      
+      // Fallback 1: Jupiter API
       if (tokens.length === 0) {
         console.log('🔄 Birdeye failed, trying Jupiter API...');
         tokens = await this.fetchFromJupiter();
+      }
+      
+      // Fallback 2: CoinGecko API
+      if (tokens.length === 0) {
+        console.log('🔄 Jupiter failed, trying CoinGecko API...');
+        tokens = await this.fetchFromCoinGecko();
+      }
+      
+      // Fallback 3: Helius API
+      if (tokens.length === 0) {
+        console.log('🔄 CoinGecko failed, trying Helius API...');
+        tokens = await this.fetchFromHelius();
       }
       
       if (tokens.length > 0) {
@@ -169,6 +276,8 @@ class DataService {
         console.log(`🎉 Successfully refreshed ${tokens.length} tokens`);
         return tokens.length;
       }
+      
+      console.log('❌ All APIs failed, no tokens updated');
       return 0;
     } catch (error) {
       console.error('❌ Data refresh failed:', error.message);
