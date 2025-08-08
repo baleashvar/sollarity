@@ -69,26 +69,26 @@ const CoinTable = ({ coins, currentPage, totalPages }) => {
                 </Link>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right font-medium">
-                {formatCurrency(coin.price)}
+                {formatCurrency(coin.price || 0)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
                 <span className={`${
-                  coin.priceChange24h >= 0 
+                  (coin.priceChange24h || 0) >= 0 
                     ? 'text-green-600 dark:text-green-400' 
                     : 'text-red-600 dark:text-red-400'
                 } font-medium`}>
-                  {formatPercentage(coin.priceChange24h)}
+                  {formatPercentage(coin.priceChange24h || 0)}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
-                {formatCurrency(coin.marketCap)}
+                {formatCurrency(coin.marketCap || 0)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
                 <div className="flex justify-end items-center">
-                  {coin.liquidityUSD === null ? (
+                  {coin.liquidityUSD === null || coin.liquidityUSD === undefined ? (
                     <span className="text-gray-500 dark:text-gray-400 italic">Data not available</span>
                   ) : (
-                    formatCurrency(coin.liquidityUSD)
+                    formatCurrency(coin.liquidityUSD || 0)
                   )}
                   {coin.lpBurned && (
                     <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
