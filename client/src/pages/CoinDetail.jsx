@@ -14,6 +14,28 @@ const CoinDetail = () => {
   const [error, setError] = useState(null);
   const [renderError, setRenderError] = useState(null);
 
+  // Data validation function
+  const validateCoinData = (data) => {
+    if (!data) return null;
+    
+    return {
+      ...data,
+      address: data.address || '',
+      name: data.name || 'Unknown',
+      symbol: data.symbol || 'UNK',
+      price: data.price || 0,
+      marketCap: data.marketCap || 0,
+      volume24h: data.volume24h || 0,
+      priceChange24h: data.priceChange24h || 0,
+      liquidityUSD: data.liquidityUSD,
+      holderCount: data.holderCount || 0,
+      lpBurned: data.lpBurned || false,
+      scamProbability: data.scamProbability || 0,
+      image: data.image || '',
+      riskFactors: data.riskFactors || []
+    };
+  };
+
   useEffect(() => {
     const fetchCoinData = async () => {
       try {
@@ -21,7 +43,8 @@ const CoinDetail = () => {
         
         // Fetch coin details
         const coinData = await getCoin(address);
-        setCoin(coinData);
+        const validatedData = validateCoinData(coinData);
+        setCoin(validatedData);
         
         setError(null);
       } catch (err) {
