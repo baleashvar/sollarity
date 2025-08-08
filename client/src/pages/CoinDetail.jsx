@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getCoin } from '../services/api';
 import { getPremiumLimits } from '../utils/premiumUtils';
-import PriceChart from '../components/charts/PriceChart';
+import DexScreenerChart from '../components/charts/DexScreenerChart';
+import TradingViewChart from '../components/charts/TradingViewChart';
 
 
 const CoinDetail = () => {
   const { address } = useParams();
   const [coin, setCoin] = useState(null);
-  const [priceHistory, setPriceHistory] = useState([]);
-  const [timeframe] = useState('24h');
+  const [chartType, setChartType] = useState('dexscreener');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -34,36 +34,7 @@ const CoinDetail = () => {
     fetchCoinData();
   }, [address]);
   
-  // Auto-refreshing price history
-  useEffect(() => {
-    const fetchPriceHistory = async () => {
-      try {
-        const url = `http://localhost:5000/api/analytics/history?address=${address}&timeframe=${timeframe}&_t=${Date.now()}`;
-        console.log(`Fetching ${timeframe} from:`, url);
-        
-        const response = await fetch(url);
-        const data = await response.json();
-        const points = data.points || [];
-        
-        console.log(`[CLIENT] ${timeframe}: ${points.length} points`, 
-                   points.length > 0 ? new Date(points[0].t) : 'none',
-                   points.length > 0 ? new Date(points[points.length-1].t) : 'none');
-        
-        setPriceHistory(points);
-      } catch (err) {
-        console.error('Price history error:', err);
-        setPriceHistory([]);
-      }
-    };
-
-    if (address) {
-      fetchPriceHistory();
-      
-      // Auto-refresh every 2 minutes
-      const interval = setInterval(fetchPriceHistory, 120000);
-      return () => clearInterval(interval);
-    }
-  }, [address, timeframe]);
+  // No need for price history fetching - external charts handle this
 
 
 
@@ -294,26 +265,43 @@ const CoinDetail = () => {
             </h2>
             {getPremiumLimits().showCharts && (
               <div className="flex space-x-2 items-center">
-                <button
-                  className="px-3 py-1 text-sm rounded bg-green-600 text-white"
-                >
-                  24h Real-Time
-                </button>
                 <span className="text-xs text-green-600 font-medium">
-                  🔴 Live Data (Auto-refresh: 2min)
+                  🔴 Live External Charts
                 </span>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="px-2 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700"
-                >
-                  🔄 Refresh Now
-                </button>
               </div>
             )}
           </div>
           
           {getPremiumLimits().showCharts ? (
-            <PriceChart priceHistory={priceHistory} timeframe={timeframe} />
+            <div className="space-y-4">
+              <div className="flex space-x-2 mb-4">
+                <button 
+                  onClick={() => setChartType('dexscreener')}
+                  className={`px-3 py-1 text-sm rounded ${
+                    chartType === 'dexscreener' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  DexScreener
+                </button>
+                <button 
+                  onClick={() => setChartType('tradingview')}
+                  className={`px-3 py-1 text-sm rounded ${
+                    chartType === 'tradingview' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  TradingView
+                </button>
+              </div>
+              {chartType === 'dexscreener' ? (
+                <DexScreenerChart address={address} />
+              ) : (
+                <TradingViewChart symbol={coin.symbol} address={address} />
+              )}
+            </div>
           ) : (
             <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-8 text-center">
               <div className="text-4xl mb-4">📈</div>
