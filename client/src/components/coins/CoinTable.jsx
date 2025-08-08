@@ -85,7 +85,11 @@ const CoinTable = ({ coins, currentPage, totalPages }) => {
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
                 <div className="flex justify-end items-center">
-                  {formatCurrency(coin.liquidityUSD)}
+                  {coin.liquidityUSD === null ? (
+                    <span className="text-gray-500 dark:text-gray-400 italic">Data not available</span>
+                  ) : (
+                    formatCurrency(coin.liquidityUSD)
+                  )}
                   {coin.lpBurned && (
                     <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
                       LP Burned
