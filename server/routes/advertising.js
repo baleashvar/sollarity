@@ -11,6 +11,14 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
+// Handle preflight requests
+router.options('/submit', (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.sendStatus(200);
+});
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -41,7 +49,12 @@ const upload = multer({
 });
 
 // Submit advertising request
-router.post('/submit', upload.single('adFile'), async (req, res) => {
+router.post('/submit', (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+}, upload.single('adFile'), async (req, res) => {
   try {
     const { contactName, email, website, companyName, budget, advertText, comments } = req.body;
     
