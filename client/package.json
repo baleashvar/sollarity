@@ -2,7 +2,7 @@
   "name": "sollarity-client",
   "version": "1.0.0",
   "description": "Sollarity frontend client",
-  "homepage": ".",
+  "homepage": "https://sollarity.xyz",
   "private": true,
   "dependencies": {
     "@paypal/react-paypal-js": "^8.8.3",
