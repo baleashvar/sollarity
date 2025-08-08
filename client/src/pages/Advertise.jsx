@@ -42,7 +42,7 @@ const Advertise = () => {
     });
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/advertising/submit`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://api.sollarity.xyz'}/api/advertising/submit`, {
         method: 'POST',
         body: submitData
       });
