@@ -87,6 +87,15 @@ class DataService {
     return Math.min(risk, 1.0);
   }
 
+  getTokenImage(symbol) {
+    // Return empty string if no symbol or if symbol is generic
+    if (!symbol || symbol === 'UNK' || symbol === 'Unknown') return '';
+    
+    // Use CoinGecko's token image API as fallback
+    const cleanSymbol = symbol.toLowerCase().replace(/[^a-z0-9]/g, '');
+    return `https://assets.coingecko.com/coins/images/1/small/${cleanSymbol}.png`;
+  }
+
   async updateDatabase(tokens) {
     if (!tokens || tokens.length === 0) {
       console.log('❌ No tokens to update');
@@ -156,7 +165,7 @@ class DataService {
         holderCount: 0,
         lpBurned: false,
         scamProbability: marketCap < 100000 ? 0.7 : 0.3,
-        image: token.logoURI || '',
+        image: token.logoURI || this.getTokenImage(token.symbol),
         supply: supply,
         lastUpdated: new Date()
       };
@@ -278,7 +287,7 @@ class DataService {
         holderCount: 0,
         lpBurned: false,
         scamProbability: marketCap < 100000 ? 0.7 : 0.3,
-        image: pair.info?.imageUrl || '',
+        image: pair.info?.imageUrl || this.getTokenImage(pair.baseToken.symbol),
         supply: supply,
         lastUpdated: new Date()
       };
