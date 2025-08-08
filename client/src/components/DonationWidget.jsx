@@ -4,7 +4,8 @@ const DonationWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   
-  const walletAddress = process.env.REACT_APP_DONATION_WALLET || 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB';
+  const walletAddress = process.env.REACT_APP_DONATION_WALLET || 'GxuHkZ6viU2t9G7uJmGHaffz9JH3reGP8hDZKBaD7tjR';
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${walletAddress}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(walletAddress);
@@ -15,7 +16,7 @@ const DonationWidget = () => {
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col space-y-3">
       {isOpen && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 w-80 border border-gray-200 dark:border-gray-700 order-first">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 w-80 border border-gray-200 dark:border-gray-700 order-first max-h-96 overflow-y-auto">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Support Sollarity
@@ -31,6 +32,14 @@ const DonationWidget = () => {
           <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
             Help us keep Sollarity free and improve our services
           </p>
+          
+          <div className="flex justify-center mb-3">
+            <img 
+              src={qrCodeUrl} 
+              alt="Donation QR Code" 
+              className="border border-gray-200 dark:border-gray-600 rounded"
+            />
+          </div>
           
           <div className="bg-gray-50 dark:bg-gray-700 rounded p-3 mb-3">
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Solana Wallet Address:</p>
