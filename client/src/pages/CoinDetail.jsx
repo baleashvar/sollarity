@@ -12,6 +12,7 @@ const CoinDetail = () => {
   const [chartType, setChartType] = useState('dexscreener');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [renderError, setRenderError] = useState(null);
 
   useEffect(() => {
     const fetchCoinData = async () => {
@@ -88,8 +89,49 @@ const CoinDetail = () => {
     );
   }
 
-  return (
-    <div className="max-w-4xl mx-auto">
+  // Additional safety check
+  if (!coin.address || !coin.name || !coin.symbol) {
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">
+          Invalid Coin Data
+        </h2>
+        <p className="text-gray-600 dark:text-gray-300 mb-6">
+          This coin has incomplete data. Please try again later.
+        </p>
+        <Link
+          to="/"
+          className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+        >
+          Back to Dashboard
+        </Link>
+      </div>
+    );
+  }
+
+  // Render error boundary
+  if (renderError) {
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">
+          Rendering Error
+        </h2>
+        <p className="text-gray-600 dark:text-gray-300 mb-6">
+          There was an error displaying this coin. Please try refreshing the page.
+        </p>
+        <Link
+          to="/"
+          className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+        >
+          Back to Dashboard
+        </Link>
+      </div>
+    );
+  }
+
+  try {
+    return (
+      <div className="max-w-4xl mx-auto">
       <div className="mb-6">
         <button
           onClick={() => window.history.back()}
@@ -128,7 +170,7 @@ const CoinDetail = () => {
               />
             ) : (
               <div className="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 mr-4 flex items-center justify-center text-lg text-white font-bold">
-                {coin.symbol.substring(0, 2)}
+                {(coin.symbol || 'UN').substring(0, 2)}
               </div>
             )}
             <div>
@@ -136,7 +178,7 @@ const CoinDetail = () => {
                 {coin.name} ({coin.symbol})
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {coin.address.substring(0, 8)}...{coin.address.substring(coin.address.length - 8)}
+                {coin.address ? `${coin.address.substring(0, 8)}...${coin.address.substring(coin.address.length - 8)}` : 'Unknown Address'}
               </p>
             </div>
           </div>
@@ -385,8 +427,27 @@ const CoinDetail = () => {
           </div>
         </div>
       ) : null}
-    </div>
-  );
+      </div>
+    );
+  } catch (err) {
+    console.error('CoinDetail render error:', err);
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">
+          Display Error
+        </h2>
+        <p className="text-gray-600 dark:text-gray-300 mb-6">
+          Unable to display coin details. Please try again.
+        </p>
+        <Link
+          to="/"
+          className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+        >
+          Back to Dashboard
+        </Link>
+      </div>
+    );
+  }
 };
 
 export default CoinDetail;
