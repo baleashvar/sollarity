@@ -24,7 +24,17 @@ const Advertise = () => {
   ];
 
   const handleFileChange = (e) => {
-    setFormData({...formData, adFile: e.target.files[0]});
+    const file = e.target.files[0];
+    if (file) {
+      // Check file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('File size must be less than 5MB');
+        e.target.value = ''; // Clear the input
+        return;
+      }
+      setError(''); // Clear any previous errors
+    }
+    setFormData({...formData, adFile: file});
   };
 
   const handleSubmit = async (e) => {

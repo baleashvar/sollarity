@@ -33,7 +33,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB limit
+    fileSize: 5 * 1024 * 1024 // 5MB limit for Cloudflare compatibility
   },
   fileFilter: (req, file, cb) => {
     console.log('📁 File upload attempt:', file.originalname, file.mimetype);
