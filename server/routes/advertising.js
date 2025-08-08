@@ -49,13 +49,20 @@ const upload = multer({
   }
 });
 
-// Submit advertising request
+// Submit advertising request (with file)
 router.post('/submit', (req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();
-}, upload.single('adFile'), async (req, res) => {
+}, (req, res, next) => {
+  // Check if this is a JSON request (no file)
+  if (req.headers['content-type'] === 'application/json') {
+    return next();
+  }
+  // Otherwise, handle file upload
+  upload.single('adFile')(req, res, next);
+}, async (req, res) => {
   try {
     const { contactName, email, website, companyName, budget, advertText, comments } = req.body;
     
@@ -75,7 +82,7 @@ router.post('/submit', (req, res, next) => {
       <p><strong>Advertisement Text:</strong></p>
       <p>${advertText}</p>
       ${comments ? `<p><strong>Comments:</strong> ${comments}</p>` : ''}
-      ${req.file ? `<p><strong>File Uploaded:</strong> ${req.file.filename}</p>` : ''}
+      ${req.file ? `<p><strong>File Uploaded:</strong> ${req.file.filename}</p>` : '<p><strong>File:</strong> No file uploaded</p>'}
       <hr>
       <p><em>Submitted at: ${new Date().toLocaleString()}</em></p>
     `;

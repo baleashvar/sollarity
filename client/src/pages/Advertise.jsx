@@ -42,20 +42,35 @@ const Advertise = () => {
     setLoading(true);
     setError('');
 
-    const submitData = new FormData();
-    Object.keys(formData).forEach(key => {
-      if (key === 'adFile' && formData[key]) {
-        submitData.append('adFile', formData[key]);
-      } else if (key !== 'adFile') {
-        submitData.append(key, formData[key]);
-      }
-    });
-
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://api.sollarity.xyz'}/advertising/submit`, {
-        method: 'POST',
-        body: submitData
-      });
+      let response;
+      
+      if (formData.adFile) {
+        // If file is present, use FormData
+        const submitData = new FormData();
+        Object.keys(formData).forEach(key => {
+          if (key === 'adFile' && formData[key]) {
+            submitData.append('adFile', formData[key]);
+          } else if (key !== 'adFile') {
+            submitData.append(key, formData[key]);
+          }
+        });
+        
+        response = await fetch(`${process.env.REACT_APP_API_URL || 'https://api.sollarity.xyz'}/advertising/submit`, {
+          method: 'POST',
+          body: submitData
+        });
+      } else {
+        // If no file, send as JSON
+        const { adFile, ...dataWithoutFile } = formData;
+        response = await fetch(`${process.env.REACT_APP_API_URL || 'https://api.sollarity.xyz'}/advertising/submit`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(dataWithoutFile)
+        });
+      }
 
       const data = await response.json();
 
