@@ -19,7 +19,7 @@ class DataService {
           sort_by: 'mc',
           sort_type: 'desc',
           offset: 0,
-          limit: 1000
+          limit: 500
         },
         timeout: 30000
       });
