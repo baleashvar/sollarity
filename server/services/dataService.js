@@ -19,7 +19,7 @@ class DataService {
           sort_by: 'mc',
           sort_type: 'desc',
           offset: 0,
-          limit: 500
+          limit: 100
         },
         timeout: 30000
       });
@@ -114,9 +114,56 @@ class DataService {
     }
   }
 
+  async fetchFromJupiter() {
+    try {
+      console.log('🔍 Fetching from Jupiter API as fallback...');
+      
+      const response = await axios.get('https://token.jup.ag/all', {
+        timeout: 30000
+      });
+
+      if (response.data && Array.isArray(response.data)) {
+        const tokens = response.data.slice(0, 300); // Get first 300 tokens
+        console.log(`✅ Fetched ${tokens.length} tokens from Jupiter`);
+        return this.processJupiterData(tokens);
+      }
+
+      return [];
+    } catch (error) {
+      console.error('❌ Jupiter API error:', error.message);
+      return [];
+    }
+  }
+
+  processJupiterData(tokens) {
+    return tokens.map(token => ({
+      address: token.address,
+      name: token.name || 'Unknown',
+      symbol: token.symbol || 'UNK',
+      price: 0, // Will be updated by price service
+      marketCap: 0,
+      volume24h: 0,
+      priceChange24h: 0,
+      liquidityUSD: 0,
+      holderCount: 0,
+      lpBurned: false,
+      scamProbability: 0.5, // Neutral until analyzed
+      image: token.logoURI || '',
+      supply: 0,
+      lastUpdated: new Date()
+    })).filter(token => token.address && token.symbol && token.name !== 'Unknown');
+  }
+
   async refreshAllData() {
     try {
-      const tokens = await this.fetchTop1000SolanaTokens();
+      let tokens = await this.fetchTop1000SolanaTokens();
+      
+      // If Birdeye fails, use Jupiter as fallback
+      if (tokens.length === 0) {
+        console.log('🔄 Birdeye failed, trying Jupiter API...');
+        tokens = await this.fetchFromJupiter();
+      }
+      
       if (tokens.length > 0) {
         await this.updateDatabase(tokens);
         console.log(`🎉 Successfully refreshed ${tokens.length} tokens`);
