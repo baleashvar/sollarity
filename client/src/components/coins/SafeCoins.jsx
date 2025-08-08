@@ -45,8 +45,22 @@ const SafeCoins = () => {
           <LoadingSpinner size="sm" />
         </div>
       ) : error ? (
-        <div className="text-center py-4 text-red-500">
-          {error}
+        <div className="text-center py-4">
+          <div className="text-gray-500 dark:text-gray-400 mb-2">
+            <span className="text-yellow-600 dark:text-yellow-400">⚠️</span> Risk analysis data not available
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            Safe coins will appear here once risk analysis data is collected
+          </p>
+        </div>
+      ) : coins.length === 0 ? (
+        <div className="text-center py-4">
+          <div className="text-gray-500 dark:text-gray-400 mb-2">
+            <span className="text-blue-600 dark:text-blue-400">📊</span> Analyzing coins...
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            Risk analysis in progress. Check back soon!
+          </p>
         </div>
       ) : (
         <ul className="space-y-3">

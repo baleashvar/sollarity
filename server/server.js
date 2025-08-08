@@ -121,8 +121,14 @@ app.get('/api/coins/trending', async (req, res) => {
 // Safe coins
 app.get('/api/coins/safe', async (req, res) => {
   try {
-    const coins = await Coin.find({ scamProbability: { $lt: 0.3 } })
-      .sort({ scamProbability: 1 }).limit(20);
+    // Get coins with risk analysis available, sorted by lowest risk
+    const coins = await Coin.find({ 
+      scamProbability: { $exists: true, $ne: null, $lt: 0.5 },
+      marketCap: { $gt: 100000 } // Only coins with decent market cap
+    })
+    .sort({ scamProbability: 1, marketCap: -1 })
+    .limit(20);
+    
     res.json(coins);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });

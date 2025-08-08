@@ -64,27 +64,47 @@ class DataService {
   }
 
   calculateRiskScore(token) {
-    let risk = 0;
+    let risk = 0.1; // Base risk for all tokens
+    let dataAvailable = false;
     
     // Low liquidity risk
     const liquidity = parseFloat(token.liquidity?.usd || 0);
-    if (liquidity < 10000) risk += 0.3;
-    else if (liquidity < 50000) risk += 0.1;
+    if (liquidity > 0) {
+      dataAvailable = true;
+      if (liquidity < 10000) risk += 0.2;
+      else if (liquidity < 50000) risk += 0.1;
+    }
     
     // Low market cap risk
     const price = parseFloat(token.price || 0);
     const supply = parseFloat(token.realSupply || token.supply || 0);
     const marketCap = price * supply;
-    if (marketCap < 100000) risk += 0.2;
+    if (marketCap > 0) {
+      dataAvailable = true;
+      if (marketCap < 100000) risk += 0.15;
+      else if (marketCap < 1000000) risk += 0.05;
+    }
     
     // Freeze authority risk
-    if (token.freeze_authority) risk += 0.3;
+    if (token.freeze_authority !== undefined) {
+      dataAvailable = true;
+      if (token.freeze_authority) risk += 0.2;
+    }
     
     // Few markets risk
     const markets = parseInt(token.numberMarkets || 0);
-    if (markets < 2) risk += 0.2;
+    if (markets >= 0) {
+      dataAvailable = true;
+      if (markets < 2) risk += 0.15;
+      else if (markets >= 5) risk -= 0.05; // Bonus for many markets
+    }
     
-    return Math.min(risk, 1.0);
+    // If no data available, return moderate risk
+    if (!dataAvailable) {
+      return 0.5;
+    }
+    
+    return Math.min(Math.max(risk, 0.05), 0.95); // Keep between 5% and 95%
   }
 
   getTokenImage(symbol) {
