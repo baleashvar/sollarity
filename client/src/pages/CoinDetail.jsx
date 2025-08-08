@@ -142,16 +142,16 @@ const CoinDetail = () => {
           </div>
           <div className="flex flex-col items-end">
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {formatCurrency(coin.price)}
+              {formatCurrency(coin.price || 0)}
             </div>
             <div
               className={`text-sm ${
-                coin.priceChange24h >= 0
+                (coin.priceChange24h || 0) >= 0
                   ? 'text-green-600 dark:text-green-400'
                   : 'text-red-600 dark:text-red-400'
               }`}
             >
-              {formatPercentage(coin.priceChange24h)} (24h)
+              {formatPercentage(coin.priceChange24h || 0)} (24h)
             </div>
           </div>
         </div>
@@ -165,19 +165,23 @@ const CoinDetail = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-400">Market Cap</span>
                 <span className="font-medium text-gray-900 dark:text-white">
-                  {formatCurrency(coin.marketCap)}
+                  {formatCurrency(coin.marketCap || 0)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-400">24h Volume</span>
                 <span className="font-medium text-gray-900 dark:text-white">
-                  {formatCurrency(coin.volume24h)}
+                  {formatCurrency(coin.volume24h || 0)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-400">Liquidity</span>
                 <span className="font-medium text-gray-900 dark:text-white">
-                  {formatCurrency(coin.liquidityUSD)}
+                  {coin.liquidityUSD === null || coin.liquidityUSD === undefined ? (
+                    <span className="text-gray-500 dark:text-gray-400 italic">Data not available</span>
+                  ) : (
+                    formatCurrency(coin.liquidityUSD || 0)
+                  )}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -189,7 +193,7 @@ const CoinDetail = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-400">Holders</span>
                 <span className="font-medium text-gray-900 dark:text-white">
-                  {coin.holderCount.toLocaleString()}
+                  {(coin.holderCount || 0).toLocaleString()}
                 </span>
               </div>
             </div>
@@ -203,26 +207,26 @@ const CoinDetail = () => {
                 <span className="text-gray-600 dark:text-gray-400">Risk Score</span>
                 <span
                   className={`font-medium ${
-                    coin.scamProbability < 0.3
+                    (coin.scamProbability || 0) < 0.3
                       ? 'text-green-600 dark:text-green-400'
-                      : coin.scamProbability < 0.7
+                      : (coin.scamProbability || 0) < 0.7
                       ? 'text-yellow-600 dark:text-yellow-400'
                       : 'text-red-600 dark:text-red-400'
                   }`}
                 >
-                  {(coin.scamProbability * 100).toFixed(0)}%
+                  {((coin.scamProbability || 0) * 100).toFixed(0)}%
                 </span>
               </div>
               <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
                 <div
                   className={`h-2.5 rounded-full ${
-                    coin.scamProbability < 0.3
+                    (coin.scamProbability || 0) < 0.3
                       ? 'bg-green-600'
-                      : coin.scamProbability < 0.7
+                      : (coin.scamProbability || 0) < 0.7
                       ? 'bg-yellow-500'
                       : 'bg-red-600'
                   }`}
-                  style={{ width: `${coin.scamProbability * 100}%` }}
+                  style={{ width: `${(coin.scamProbability || 0) * 100}%` }}
                 ></div>
               </div>
             </div>
