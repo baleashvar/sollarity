@@ -125,7 +125,10 @@ class DataService {
       if (response.data && Array.isArray(response.data)) {
         const tokens = response.data.slice(0, 300); // Get first 300 tokens
         console.log(`✅ Fetched ${tokens.length} tokens from Jupiter`);
-        return this.processJupiterData(tokens);
+        
+        // Get price data for these tokens
+        const tokensWithPrices = await this.addPriceData(tokens);
+        return this.processJupiterData(tokensWithPrices);
       }
 
       return [];
@@ -136,22 +139,28 @@ class DataService {
   }
 
   processJupiterData(tokens) {
-    return tokens.map(token => ({
-      address: token.address,
-      name: token.name || 'Unknown',
-      symbol: token.symbol || 'UNK',
-      price: 0, // Will be updated by price service
-      marketCap: 0,
-      volume24h: 0,
-      priceChange24h: 0,
-      liquidityUSD: 0,
-      holderCount: 0,
-      lpBurned: false,
-      scamProbability: 0.5, // Neutral until analyzed
-      image: token.logoURI || '',
-      supply: 0,
-      lastUpdated: new Date()
-    })).filter(token => token.address && token.symbol && token.name !== 'Unknown');
+    return tokens.map(token => {
+      const price = parseFloat(token.priceData?.price || 0);
+      const supply = parseFloat(token.priceData?.supply || 0);
+      const marketCap = price * supply;
+      
+      return {
+        address: token.address,
+        name: token.name || 'Unknown',
+        symbol: token.symbol || 'UNK',
+        price: price,
+        marketCap: marketCap,
+        volume24h: parseFloat(token.priceData?.volume24h || 0),
+        priceChange24h: parseFloat(token.priceData?.priceChange24h || 0) / 100,
+        liquidityUSD: parseFloat(token.priceData?.liquidity || 0),
+        holderCount: 0,
+        lpBurned: false,
+        scamProbability: marketCap < 100000 ? 0.7 : 0.3,
+        image: token.logoURI || '',
+        supply: supply,
+        lastUpdated: new Date()
+      };
+    }).filter(token => token.address && token.symbol && token.name !== 'Unknown' && token.price > 0);
   }
 
   async fetchFromHelius() {
@@ -177,6 +186,30 @@ class DataService {
       return [];
     } catch (error) {
       console.error('❌ Helius API error:', error.message);
+      return [];
+    }
+  }
+
+  async fetchFromDexScreener() {
+    try {
+      console.log('🔍 Fetching from DexScreener API...');
+      
+      const response = await axios.get('https://api.dexscreener.com/latest/dex/search/?q=SOL', {
+        timeout: 30000
+      });
+
+      if (response.data?.pairs) {
+        const solPairs = response.data.pairs
+          .filter(pair => pair.chainId === 'solana' && pair.baseToken?.address)
+          .slice(0, 200);
+        
+        console.log(`✅ Fetched ${solPairs.length} tokens from DexScreener`);
+        return this.processDexScreenerData(solPairs);
+      }
+
+      return [];
+    } catch (error) {
+      console.error('❌ DexScreener API error:', error.message);
       return [];
     }
   }
@@ -227,6 +260,31 @@ class DataService {
     })).filter(token => token.address && token.symbol);
   }
 
+  processDexScreenerData(pairs) {
+    return pairs.map(pair => {
+      const price = parseFloat(pair.priceUsd || 0);
+      const supply = parseFloat(pair.baseToken?.totalSupply || 0);
+      const marketCap = parseFloat(pair.marketCap || price * supply);
+      
+      return {
+        address: pair.baseToken.address,
+        name: pair.baseToken.name || 'Unknown',
+        symbol: pair.baseToken.symbol || 'UNK',
+        price: price,
+        marketCap: marketCap,
+        volume24h: parseFloat(pair.volume?.h24 || 0),
+        priceChange24h: parseFloat(pair.priceChange?.h24 || 0) / 100,
+        liquidityUSD: parseFloat(pair.liquidity?.usd || 0),
+        holderCount: 0,
+        lpBurned: false,
+        scamProbability: marketCap < 100000 ? 0.7 : 0.3,
+        image: pair.info?.imageUrl || '',
+        supply: supply,
+        lastUpdated: new Date()
+      };
+    }).filter(token => token.price > 0 && token.marketCap > 1000);
+  }
+
   processCoinGeckoData(tokens) {
     return tokens.map(token => ({
       address: token.id, // CoinGecko uses ID, we'll need to map this
@@ -246,6 +304,41 @@ class DataService {
     })).filter(token => token.price > 0);
   }
 
+  async addPriceData(tokens) {
+    try {
+      // Get addresses for price lookup (limit to 50 for better performance)
+      const addresses = tokens.slice(0, 50).map(t => t.address);
+      
+      // Try DexScreener API for Solana tokens
+      const dexResponse = await axios.get('https://api.dexscreener.com/latest/dex/tokens/' + addresses.join(','), {
+        timeout: 15000
+      });
+      
+      if (dexResponse.data?.pairs) {
+        const pairs = dexResponse.data.pairs;
+        
+        return tokens.map(token => {
+          const pair = pairs.find(p => p.baseToken?.address === token.address);
+          if (pair) {
+            token.priceData = {
+              price: parseFloat(pair.priceUsd || 0),
+              supply: parseFloat(pair.baseToken?.totalSupply || 0),
+              volume24h: parseFloat(pair.volume?.h24 || 0),
+              priceChange24h: parseFloat(pair.priceChange?.h24 || 0),
+              liquidity: parseFloat(pair.liquidity?.usd || 0)
+            };
+          }
+          return token;
+        });
+      }
+      
+      return tokens;
+    } catch (error) {
+      console.error('❌ Price data fetch error:', error.message);
+      return tokens;
+    }
+  }
+
   async refreshAllData() {
     try {
       let tokens = [];
@@ -259,13 +352,19 @@ class DataService {
         tokens = await this.fetchFromJupiter();
       }
       
-      // Fallback 2: CoinGecko API
+      // Fallback 2: DexScreener API for popular Solana tokens
       if (tokens.length === 0) {
-        console.log('🔄 Jupiter failed, trying CoinGecko API...');
+        console.log('🔄 Jupiter failed, trying DexScreener API...');
+        tokens = await this.fetchFromDexScreener();
+      }
+      
+      // Fallback 3: CoinGecko API
+      if (tokens.length === 0) {
+        console.log('🔄 DexScreener failed, trying CoinGecko API...');
         tokens = await this.fetchFromCoinGecko();
       }
       
-      // Fallback 3: Helius API
+      // Fallback 4: Helius API
       if (tokens.length === 0) {
         console.log('🔄 CoinGecko failed, trying Helius API...');
         tokens = await this.fetchFromHelius();
