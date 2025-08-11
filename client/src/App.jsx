@@ -4,7 +4,7 @@ import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import DonationWidget from './components/DonationWidget';
-import ErrorBoundary from './components/ErrorBoundary';
+
 import Dashboard from './pages/Dashboard';
 import CoinDetail from './pages/CoinDetail';
 import About from './pages/About';
@@ -51,7 +51,7 @@ function App() {
           <main className="container mx-auto px-4 py-6 md:px-6 lg:px-8 lg:py-8">
             <Routes>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/coin/:address" element={<ErrorBoundary><CoinDetail /></ErrorBoundary>} />
+              <Route path="/coin/:address" element={<CoinDetail />} />
               <Route path="/about" element={<About />} />
               <Route path="/subscription" element={<Subscription />} />
               <Route path="/thank-you" element={<ThankYou />} />
