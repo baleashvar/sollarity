@@ -22,6 +22,7 @@ app.use(cors({
   origin: [
     'https://sollarity.pages.dev',
     'https://sollarity.xyz',
+    'https://api.sollarity.xyz',
     'http://localhost:3000'
   ],
   credentials: true
