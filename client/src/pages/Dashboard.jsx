@@ -9,7 +9,6 @@ import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Alert from '../components/ui/Alert';
 import SEOHead from '../components/SEO/SEOHead';
 import PersonalizedDashboard from '../components/wallet/PersonalizedDashboard';
-import PersonalizedDashboard from '../components/wallet/PersonalizedDashboard';
 import { getCoins } from '../services/api';
 import { getPremiumLimits } from '../utils/premiumUtils';
 
