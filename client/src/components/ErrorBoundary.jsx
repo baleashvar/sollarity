@@ -29,7 +29,7 @@ class ErrorBoundary extends React.Component {
             {this.state.error && (
               <details className="text-left text-sm text-gray-500 mb-4">
                 <summary>Error details</summary>
-                <pre>{this.state.error.toString()}</pre>
+                <pre>{this.state.error?.toString() || 'Unknown error'}</pre>
               </details>
             )}
             <div className="space-x-4">
