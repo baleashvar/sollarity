@@ -19,12 +19,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: [
-    'https://sollarity.pages.dev',
-    'https://sollarity.xyz',
-    'https://api.sollarity.xyz',
-    'http://localhost:3000'
-  ],
+  origin: true,
   credentials: true
 }));
 app.use(express.json({ limit: '50mb' }));
