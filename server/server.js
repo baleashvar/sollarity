@@ -7,6 +7,9 @@ const session = require('express-session');
 const { scheduleDailyReport } = require('./utils/scheduler');
 const priceHistoryService = require('./services/priceHistoryService');
 const dataService = require('./services/dataService');
+const alertService = require('./services/alertService');
+const tradeLinksService = require('./services/tradeLinksService');
+const riskHistoryService = require('./services/riskHistoryService');
 const { authenticateToken } = require('./middleware/auth');
 const { generateCSRFToken, getCSRFToken } = require('./middleware/csrf');
 
@@ -86,10 +89,13 @@ app.get('/api/coins', async (req, res) => {
     
     const actualLimit = 20; // Always 20 coins per page for everyone
     
-    const coins = await Coin.find(filter)
+    let coins = await Coin.find(filter)
       .sort(sortObj)
       .limit(actualLimit)
       .skip((Number(page) - 1) * actualLimit);
+    
+    // Add trade links to coins
+    coins = tradeLinksService.addTradeLinksToTokens(coins);
     
     const total = await Coin.countDocuments(filter);
     const calculatedTotalPages = Math.ceil(total / actualLimit);
@@ -198,6 +204,8 @@ app.use('/api/trial', require('./routes/trial'));
 app.use('/api/referral', require('./routes/referral'));
 app.use('/api/leaderboard', require('./routes/leaderboard'));
 app.use('/api/moralis', require('./routes/moralis'));
+app.use('/api/alerts', require('./routes/alerts'));
+app.use('/api/whales', require('./routes/whales'));
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
