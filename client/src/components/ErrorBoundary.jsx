@@ -26,6 +26,12 @@ class ErrorBoundary extends React.Component {
             <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-md">
               We encountered an error while loading this page. Please try refreshing or go back to the dashboard.
             </p>
+            {this.state.error && (
+              <details className="text-left text-sm text-gray-500 mb-4">
+                <summary>Error details</summary>
+                <pre>{this.state.error.toString()}</pre>
+              </details>
+            )}
             <div className="space-x-4">
               <button
                 onClick={() => window.location.reload()}
