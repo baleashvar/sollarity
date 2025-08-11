@@ -206,6 +206,7 @@ app.use('/api/leaderboard', require('./routes/leaderboard'));
 app.use('/api/moralis', require('./routes/moralis'));
 app.use('/api/alerts', require('./routes/alerts'));
 app.use('/api/whales', require('./routes/whales'));
+app.use('/api/telegram', require('./routes/telegram'));
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
