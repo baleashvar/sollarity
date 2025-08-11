@@ -4,6 +4,7 @@ import { getCoin } from '../services/api';
 import { getPremiumLimits } from '../utils/premiumUtils';
 import DexScreenerChart from '../components/charts/DexScreenerChart';
 import TradingViewChart from '../components/charts/TradingViewChart';
+import LivePrice from '../components/ui/LivePrice';
 
 
 const CoinDetail = () => {
@@ -207,16 +208,7 @@ const CoinDetail = () => {
           </div>
           <div className="flex flex-col items-end">
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {formatCurrency(coin.price || 0)}
-            </div>
-            <div
-              className={`text-sm ${
-                (coin.priceChange24h || 0) >= 0
-                  ? 'text-green-600 dark:text-green-400'
-                  : 'text-red-600 dark:text-red-400'
-              }`}
-            >
-              {formatPercentage(coin.priceChange24h || 0)} (24h)
+              <LivePrice coin={coin} showChange={true} />
             </div>
           </div>
         </div>

@@ -52,6 +52,18 @@ const userSchema = new mongoose.Schema({
   paypalSubscriptionId: {
     type: String,
     default: null
+  },
+  trialUsed: {
+    type: Boolean,
+    default: false
+  },
+  walletAddress: {
+    type: String,
+    default: null
+  },
+  referralCode: {
+    type: String,
+    default: null
   }
 }, {
   timestamps: true

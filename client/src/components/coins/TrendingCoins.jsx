@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { formatCurrency } from '../../utils/formatters';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import { getTrendingCoins } from '../../services/api';
+import LivePrice from '../ui/LivePrice';
 
 const TrendingCoins = () => {
   const [coins, setCoins] = useState([]);
@@ -65,7 +66,7 @@ const TrendingCoins = () => {
                   </span>
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-300">
-                  {formatCurrency(coin.price)}
+                  <LivePrice coin={coin} showChange={false} />
                 </div>
               </Link>
             </li>

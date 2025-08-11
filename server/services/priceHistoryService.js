@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Coin = require('../models/Coin');
+const { sanitizeForLog } = require('../utils/sanitize');
 
 // Optimized schema - one document per coin with price array
 const PriceHistorySchema = new mongoose.Schema({
@@ -98,13 +99,13 @@ class PriceHistoryService {
       // Find by address first, fallback to symbol
       let coin = await Coin.findOne({ address }, 'symbol');
       if (!coin) {
-        console.log(`Coin not found for address: ${address}`);
+        console.log(`Coin not found for address: ${sanitizeForLog(address)}`);
         return [];
       }
       
       const history = await PriceHistory.findOne({ symbol: coin.symbol });
       if (!history || !history.prices || history.prices.length === 0) {
-        console.log(`No price history for ${coin.symbol}`);
+        console.log(`No price history for ${sanitizeForLog(coin.symbol)}`);
         // Return mock data if no history exists
         const currentCoin = await Coin.findOne({ address });
         if (currentCoin && currentCoin.price) {
@@ -133,11 +134,11 @@ class PriceHistoryService {
           v: 1000
         }));
       
-      console.log(`Found ${recentPrices.length} price points for ${coin.symbol}`);
+      console.log(`Found ${recentPrices.length} price points for ${sanitizeForLog(coin.symbol)}`);
       return recentPrices;
       
     } catch (error) {
-      console.error('History fetch error:', error.message);
+      console.error('History fetch error:', sanitizeForLog(error.message));
       return [];
     }
   }

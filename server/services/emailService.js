@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const { sanitizeForLog } = require('../utils/sanitize');
 
 // Configure SMTP transporter
 const transporter = nodemailer.createTransport({
@@ -18,7 +19,7 @@ const transporter = nodemailer.createTransport({
 if (process.env.SMTP_USERNAME && process.env.SMTP_PASSWORD) {
   transporter.verify(function(error, success) {
     if (error) {
-      console.log('Email configuration error:', error.message || 'Unknown error');
+      console.log('Email configuration error:', sanitizeForLog(error.message || 'Unknown error'));
     } else {
       console.log('Email server is ready to send messages');
     }
@@ -38,10 +39,10 @@ const sendEmail = async ({ to, subject, html, text }) => {
 
   try {
     const result = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', result.messageId);
+    console.log('Email sent successfully:', sanitizeForLog(result.messageId));
     return result;
   } catch (error) {
-    console.error('Email sending failed:', error);
+    console.error('Email sending failed:', sanitizeForLog(error.message));
     throw error;
   }
 };

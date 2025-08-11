@@ -4,6 +4,7 @@ import { formatCurrency, formatPercentage } from '../../utils/formatters';
 import { getPremiumLimits } from '../../utils/premiumUtils';
 import WatchlistButton from '../watchlist/WatchlistButton';
 import PremiumBanner from '../ui/PremiumBanner';
+import LivePrice from '../ui/LivePrice';
 
 const CoinTable = ({ coins, currentPage, totalPages }) => {
   const limits = getPremiumLimits();
@@ -69,7 +70,7 @@ const CoinTable = ({ coins, currentPage, totalPages }) => {
                 </Link>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right font-medium">
-                {formatCurrency(coin.price || 0)}
+                <LivePrice coin={coin} showChange={false} />
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
                 <span className={`${

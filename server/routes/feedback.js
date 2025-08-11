@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const { sendEmail } = require('../services/emailService');
+const { csrfProtection } = require('../middleware/csrf');
+const { sanitizeForLog } = require('../utils/sanitize');
 
-// Submit feedback
-router.post('/submit', async (req, res) => {
+// Submit feedback (with CSRF protection)
+router.post('/submit', csrfProtection, async (req, res) => {
   try {
     const { name, email, subject, message } = req.body;
     

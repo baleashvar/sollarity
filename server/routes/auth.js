@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { sendOTPEmail } = require('../services/emailService');
+const { sanitizeForLog } = require('../utils/sanitize');
 const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'sollarity_secret_key';
@@ -24,9 +25,9 @@ router.post('/register', async (req, res) => {
     const { sendOTPEmail } = require('../services/emailService');
     try {
       await sendOTPEmail(email, otp, username);
-      console.log(`OTP sent to ${email}`);
+      console.log(`OTP sent to ${sanitizeForLog(email)}`);
     } catch (emailError) {
-      console.error('Failed to send OTP email:', emailError);
+      console.error('Failed to send OTP email:', sanitizeForLog(emailError.message));
     }
     
     res.status(201).json({
@@ -94,9 +95,9 @@ router.post('/resend-otp', async (req, res) => {
     
     try {
       await sendOTPEmail(user.email, otp, user.username);
-      console.log(`OTP resent to ${user.email}`);
+      console.log(`OTP resent to ${sanitizeForLog(user.email)}`);
     } catch (emailError) {
-      console.error('Failed to resend OTP email:', emailError);
+      console.error('Failed to resend OTP email:', sanitizeForLog(emailError.message));
     }
     
     res.json({ message: 'OTP sent successfully' });
@@ -120,9 +121,9 @@ router.post('/forgot-password', async (req, res) => {
     
     try {
       await sendOTPEmail(user.email, otp, user.username, 'Password Reset');
-      console.log(`Password reset OTP sent to ${user.email}`);
+      console.log(`Password reset OTP sent to ${sanitizeForLog(user.email)}`);
     } catch (emailError) {
-      console.error('Failed to send password reset OTP:', emailError);
+      console.error('Failed to send password reset OTP:', sanitizeForLog(emailError.message));
     }
     
     res.json({ 
@@ -162,14 +163,14 @@ router.post('/reset-password', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { usernameOrEmail, password } = req.body;
-    console.log('Login attempt:', { usernameOrEmail, password: password ? '[PROVIDED]' : '[MISSING]' });
+    console.log('Login attempt:', { usernameOrEmail: sanitizeForLog(usernameOrEmail), password: password ? '[PROVIDED]' : '[MISSING]' });
     
     // Find user by username or email
     const user = await User.findOne({ 
       $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }] 
     });
     
-    console.log('User found:', user ? user.username : 'NO USER');
+    console.log('User found:', user ? sanitizeForLog(user.username) : 'NO USER');
     
     if (!user) {
       console.log('Login failed: User not found');

@@ -8,6 +8,8 @@ import ScamAlerts from '../components/alerts/ScamAlerts';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Alert from '../components/ui/Alert';
 import SEOHead from '../components/SEO/SEOHead';
+import PersonalizedDashboard from '../components/wallet/PersonalizedDashboard';
+import PersonalizedDashboard from '../components/wallet/PersonalizedDashboard';
 import { getCoins } from '../services/api';
 import { getPremiumLimits } from '../utils/premiumUtils';
 
@@ -187,6 +189,8 @@ const Dashboard = () => {
         </div>
         
         <div className="space-y-6">
+          <PersonalizedDashboard />
+          <PersonalizedDashboard />
           <TrendingCoins />
           <SafeCoins />
           <ScamAlerts />

@@ -2,8 +2,15 @@ const express = require('express');
 const router = express.Router();
 const { spawn } = require('child_process');
 const path = require('path');
+const { authenticateToken } = require('../middleware/auth');
+const { csrfProtection } = require('../middleware/csrf');
 
-router.post('/data', async (req, res) => {
+// Data refresh requires authentication (admin only)
+router.post('/data', authenticateToken, csrfProtection, async (req, res) => {
+  // Check if user is admin (you can add admin role to User model)
+  if (req.user.email !== 'sollarity1@gmail.com') {
+    return res.status(403).json({ message: 'Admin access required' });
+  }
   try {
     console.log('Triggering data refresh...');
     

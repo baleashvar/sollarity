@@ -118,7 +118,7 @@ const ForgotPassword = () => {
                 value={formData.otp}
                 onChange={(e) => setFormData({...formData, otp: e.target.value.replace(/\D/g, '')})}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-center text-2xl tracking-widest"
-                placeholder="000000"
+                placeholder="Enter 6-digit code"
               />
               <p className="text-xs text-gray-500 mt-1">Check your email for the 6-digit code</p>
             </div>

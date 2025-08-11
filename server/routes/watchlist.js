@@ -3,21 +3,19 @@ const jwt = require('jsonwebtoken');
 const Watchlist = require('../models/Watchlist');
 const Coin = require('../models/Coin');
 const Alert = require('../models/Alert');
+const { authenticateToken } = require('../middleware/auth');
+const { csrfProtection } = require('../middleware/csrf');
 const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'sollarity_secret_key';
 
 // Add to watchlist
-router.post('/add', async (req, res) => {
+router.post('/add', authenticateToken, csrfProtection, async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ message: 'No token' });
-    
-    const decoded = jwt.verify(token, JWT_SECRET);
     const { coinAddress } = req.body;
     
     const watchlistItem = new Watchlist({
-      userId: decoded.userId,
+      userId: req.userId,
       coinAddress
     });
     
@@ -32,16 +30,12 @@ router.post('/add', async (req, res) => {
 });
 
 // Remove from watchlist
-router.delete('/remove', async (req, res) => {
+router.delete('/remove', authenticateToken, csrfProtection, async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ message: 'No token' });
-    
-    const decoded = jwt.verify(token, JWT_SECRET);
     const { address } = req.query;
     
     await Watchlist.findOneAndDelete({
-      userId: decoded.userId,
+      userId: req.userId,
       coinAddress: address
     });
     
@@ -52,14 +46,9 @@ router.delete('/remove', async (req, res) => {
 });
 
 // Get user watchlist
-router.get('/', async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ message: 'No token' });
-    
-    const decoded = jwt.verify(token, JWT_SECRET);
-    
-    const watchlist = await Watchlist.find({ userId: decoded.userId });
+    const watchlist = await Watchlist.find({ userId: req.userId });
     const coinAddresses = watchlist.map(item => item.coinAddress);
     const coins = await Coin.find({ address: { $in: coinAddresses } });
     
@@ -70,16 +59,12 @@ router.get('/', async (req, res) => {
 });
 
 // Set price alert
-router.post('/alert', async (req, res) => {
+router.post('/alert', authenticateToken, csrfProtection, async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ message: 'No token' });
-    
-    const decoded = jwt.verify(token, JWT_SECRET);
     const { coinAddress, alertType, threshold } = req.body;
     
     const alert = new Alert({
-      userId: decoded.userId,
+      userId: req.userId,
       coinAddress,
       alertType,
       threshold

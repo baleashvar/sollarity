@@ -1,5 +1,6 @@
 const axios = require('axios');
 const Coin = require('../models/Coin');
+const { sanitizeForLog } = require('../utils/sanitize');
 
 class DataService {
   constructor() {
@@ -32,7 +33,7 @@ class DataService {
 
       return [];
     } catch (error) {
-      console.error('❌ Birdeye API error:', error.message);
+      console.error('❌ Birdeye API error:', sanitizeForLog(error.message));
       return [];
     }
   }
@@ -138,7 +139,7 @@ class DataService {
       
       return result;
     } catch (error) {
-      console.error('❌ Database update error:', error.message);
+      console.error('❌ Database update error:', sanitizeForLog(error.message));
       throw error;
     }
   }

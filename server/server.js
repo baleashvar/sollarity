@@ -3,9 +3,12 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+const session = require('express-session');
 const { scheduleDailyReport } = require('./utils/scheduler');
 const priceHistoryService = require('./services/priceHistoryService');
 const dataService = require('./services/dataService');
+const { authenticateToken } = require('./middleware/auth');
+const { generateCSRFToken, getCSRFToken } = require('./middleware/csrf');
 
 dotenv.config({ path: path.join(__dirname, '..', 'config', '.env') });
 
@@ -23,6 +26,18 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// Session middleware for CSRF protection
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'sollarity_session_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
+
+// CSRF token generation
+app.use(generateCSRFToken);
+app.get('/api/csrf-token', getCSRFToken);
+
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
@@ -30,7 +45,7 @@ mongoose.connect(process.env.MONGO_URI)
 const Coin = require('./models/Coin');
 const PriceHistory = require('./models/PriceHistory');
 
-// Coins route with proper filtering
+// Coins route with proper filtering (public endpoint)
 app.get('/api/coins', async (req, res) => {
   try {
     const { 
@@ -92,7 +107,7 @@ app.get('/api/coins', async (req, res) => {
   }
 });
 
-// Coin detail route
+// Coin detail route (public endpoint)
 app.get('/api/coins/detail', async (req, res) => {
   try {
     const { address } = req.query;
@@ -108,7 +123,7 @@ app.get('/api/coins/detail', async (req, res) => {
   }
 });
 
-// Trending coins
+// Trending coins (public endpoint)
 app.get('/api/coins/trending', async (req, res) => {
   try {
     const coins = await Coin.find().sort({ volume24h: -1 }).limit(20);
@@ -118,7 +133,7 @@ app.get('/api/coins/trending', async (req, res) => {
   }
 });
 
-// Safe coins
+// Safe coins (public endpoint)
 app.get('/api/coins/safe', async (req, res) => {
   try {
     // Get coins with risk analysis available, sorted by lowest risk
@@ -135,8 +150,8 @@ app.get('/api/coins/safe', async (req, res) => {
   }
 });
 
-// Real-time price history
-app.get('/api/analytics/history', async (req, res) => {
+// Real-time price history (requires authentication)
+app.get('/api/analytics/history', authenticateToken, async (req, res) => {
   try {
     const { address, timeframe = '24h' } = req.query;
     
@@ -179,6 +194,9 @@ app.use('/api/test', testRoutes);
 app.use('/api/watchlist', watchlistRoutes);
 app.use('/api/feedback', require('./routes/feedback'));
 app.use('/api/advertising', require('./routes/advertising'));
+app.use('/api/trial', require('./routes/trial'));
+app.use('/api/referral', require('./routes/referral'));
+app.use('/api/leaderboard', require('./routes/leaderboard'));
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });

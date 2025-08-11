@@ -1,19 +1,15 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { authenticateToken } = require('../middleware/auth');
+const { csrfProtection } = require('../middleware/csrf');
 const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'sollarity_secret_key';
 
 // Upgrade to premium after PayPal payment
-router.post('/upgrade', async (req, res) => {
+router.post('/upgrade', authenticateToken, csrfProtection, async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
-    }
-    
-    const decoded = jwt.verify(token, JWT_SECRET);
     const { paymentId, planType } = req.body;
     
     // Set premium expiry based on plan
@@ -24,7 +20,7 @@ router.post('/upgrade', async (req, res) => {
       expiryDate.setFullYear(expiryDate.getFullYear() + 1);
     }
     
-    await User.findByIdAndUpdate(decoded.userId, {
+    await User.findByIdAndUpdate(req.userId, {
       isPremium: true,
       premiumExpiry: expiryDate
     });
@@ -36,15 +32,9 @@ router.post('/upgrade', async (req, res) => {
 });
 
 // Check premium status
-router.get('/status', async (req, res) => {
+router.get('/status', authenticateToken, async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
-    }
-    
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(decoded.userId);
+    const user = await User.findById(req.userId);
     
     const isPremiumActive = user.isPremium && 
       (!user.premiumExpiry || user.premiumExpiry > new Date());
