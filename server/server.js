@@ -197,6 +197,7 @@ app.use('/api/advertising', require('./routes/advertising'));
 app.use('/api/trial', require('./routes/trial'));
 app.use('/api/referral', require('./routes/referral'));
 app.use('/api/leaderboard', require('./routes/leaderboard'));
+app.use('/api/moralis', require('./routes/moralis'));
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });

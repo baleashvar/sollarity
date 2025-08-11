@@ -1,6 +1,7 @@
 const axios = require('axios');
 const Coin = require('../models/Coin');
 const { sanitizeForLog } = require('../utils/sanitize');
+const moralisService = require('./moralisService');
 
 class DataService {
   constructor() {
@@ -38,14 +39,23 @@ class DataService {
     }
   }
 
-  processTokenData(tokens) {
-    return tokens.map(token => {
-      // Calculate accurate market cap using circulating supply
+  async processTokenData(tokens) {
+    const processedTokens = [];
+    
+    for (const token of tokens) {
       const price = parseFloat(token.price || 0);
       const supply = parseFloat(token.realSupply || token.supply || 0);
       const marketCap = price * supply;
 
-      return {
+      // Get enhanced liquidity data from Moralis
+      let liquidityData = null;
+      try {
+        liquidityData = await moralisService.getTokenLiquidity(token.address);
+      } catch (error) {
+        console.log(`Moralis liquidity failed for ${token.address}`);
+      }
+
+      const processedToken = {
         address: token.address,
         name: token.name || 'Unknown',
         symbol: token.symbol || 'UNK',
@@ -53,22 +63,39 @@ class DataService {
         marketCap: marketCap,
         volume24h: parseFloat(token.v24hUSD || 0),
         priceChange24h: parseFloat(token.priceChange24hPercent || 0) / 100,
-        liquidityUSD: parseFloat(token.liquidity?.usd || 0),
+        liquidityUSD: liquidityData?.totalLiquidity || parseFloat(token.liquidity?.usd || 0),
         holderCount: parseInt(token.numberMarkets || 0),
-        lpBurned: !token.freeze_authority, // No freeze authority = LP likely burned
-        scamProbability: this.calculateRiskScore(token),
+        lpBurned: liquidityData?.lpBurned || !token.freeze_authority,
+        scamProbability: await this.calculateRiskScore(token),
         image: token.logoURI || '',
         supply: supply,
+        liquidityScore: liquidityData?.liquidityScore || 'unknown',
         lastUpdated: new Date()
       };
-    }).filter(token => token.price > 0 && token.marketCap > 1000); // Filter out invalid tokens
+      
+      if (processedToken.price > 0 && processedToken.marketCap > 1000) {
+        processedTokens.push(processedToken);
+      }
+    }
+    
+    return processedTokens;
   }
 
-  calculateRiskScore(token) {
+  async calculateRiskScore(token) {
     let risk = 0.1; // Base risk for all tokens
     let dataAvailable = false;
     
-    // Low liquidity risk
+    // Try to get enhanced risk analysis from Moralis
+    try {
+      const enhancedRisk = await moralisService.getEnhancedRiskAnalysis(token.address);
+      if (enhancedRisk) {
+        return enhancedRisk.riskScore;
+      }
+    } catch (error) {
+      console.log('Moralis risk analysis failed, using fallback');
+    }
+    
+    // Fallback to original risk calculation
     const liquidity = parseFloat(token.liquidity?.usd || 0);
     if (liquidity > 0) {
       dataAvailable = true;
@@ -76,7 +103,6 @@ class DataService {
       else if (liquidity < 50000) risk += 0.1;
     }
     
-    // Low market cap risk
     const price = parseFloat(token.price || 0);
     const supply = parseFloat(token.realSupply || token.supply || 0);
     const marketCap = price * supply;
@@ -86,26 +112,23 @@ class DataService {
       else if (marketCap < 1000000) risk += 0.05;
     }
     
-    // Freeze authority risk
     if (token.freeze_authority !== undefined) {
       dataAvailable = true;
       if (token.freeze_authority) risk += 0.2;
     }
     
-    // Few markets risk
     const markets = parseInt(token.numberMarkets || 0);
     if (markets >= 0) {
       dataAvailable = true;
       if (markets < 2) risk += 0.15;
-      else if (markets >= 5) risk -= 0.05; // Bonus for many markets
+      else if (markets >= 5) risk -= 0.05;
     }
     
-    // If no data available, return moderate risk
     if (!dataAvailable) {
       return 0.5;
     }
     
-    return Math.min(Math.max(risk, 0.05), 0.95); // Keep between 5% and 95%
+    return Math.min(Math.max(risk, 0.05), 0.95);
   }
 
   getTokenImage(symbol) {

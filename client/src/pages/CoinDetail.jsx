@@ -5,6 +5,7 @@ import { getPremiumLimits } from '../utils/premiumUtils';
 import DexScreenerChart from '../components/charts/DexScreenerChart';
 import TradingViewChart from '../components/charts/TradingViewChart';
 import LivePrice from '../components/ui/LivePrice';
+import EnhancedRiskPanel from '../components/analysis/EnhancedRiskPanel';
 
 
 const CoinDetail = () => {
@@ -318,6 +319,8 @@ const CoinDetail = () => {
             )}
           </div>
         </div>
+
+        <EnhancedRiskPanel tokenAddress={address} />
 
         <div>
           <div className="flex justify-between items-center mb-4">
