@@ -2,7 +2,7 @@
  * API service for Sollarity
  */
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://api.sollarity.xyz/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://54.146.158.79:5001/api';
 
 /**
  * Get all coins with pagination and filtering
