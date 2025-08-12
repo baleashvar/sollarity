@@ -57,7 +57,7 @@ const CoinTable = ({ coins, currentPage, totalPages }) => {
               <td className="px-6 py-4 whitespace-nowrap">
                 <Link to={`/coin/${coin.address}`} className="flex items-center">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 mr-3 flex items-center justify-center text-white font-bold text-sm">
-                    {coin.symbol.substring(0, 2)}
+                    {coin.symbol?.substring(0, 2) || '??'}
                   </div>
                   <div>
                     <div className="font-medium text-gray-900 dark:text-white">
