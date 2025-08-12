@@ -4,6 +4,7 @@ import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import DonationWidget from './components/DonationWidget';
+import ErrorBoundary from './components/ErrorBoundary';
 
 import Dashboard from './pages/Dashboard';
 import CoinDetail from './pages/CoinDetail';
@@ -49,8 +50,9 @@ function App() {
         <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
           <Navbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
           <main className="container mx-auto px-4 py-6 md:px-6 lg:px-8 lg:py-8">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
+            <ErrorBoundary>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
               <Route path="/coin/:address" element={<CoinDetail />} />
               <Route path="/about" element={<About />} />
               <Route path="/subscription" element={<Subscription />} />
@@ -64,7 +66,8 @@ function App() {
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="*" element={<NotFound />} />
-            </Routes>
+              </Routes>
+            </ErrorBoundary>
           </main>
           <Footer />
           <DonationWidget />
