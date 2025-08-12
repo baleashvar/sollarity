@@ -57,8 +57,10 @@ const CoinTable = ({ coins, currentPage, totalPages }) => {
           </tr>
         </thead>
         <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-          {displayCoins.map((coin) => (
-            <tr key={coin.address} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+          {displayCoins.map((coinObj) => {
+            const coin = coinObj._doc || coinObj; // Handle Mongoose objects
+            return (
+            <tr key={coin.address || coin._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
               <td className="px-6 py-4 whitespace-nowrap">
                 <Link to={`/coin/${coin.address}`} className="flex items-center">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 mr-3 flex items-center justify-center text-white font-bold text-sm">
@@ -121,7 +123,8 @@ const CoinTable = ({ coins, currentPage, totalPages }) => {
                 <WatchlistButton coinAddress={coin.address} />
               </td>
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
       </div>
