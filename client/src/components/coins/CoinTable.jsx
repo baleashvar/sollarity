@@ -10,6 +10,11 @@ const CoinTable = ({ coins, currentPage, totalPages }) => {
   const limits = getPremiumLimits();
   const displayCoins = coins || [];
   const showUpgradeBanner = !limits.showCharts && currentPage === 1 && totalPages > 1;
+  
+  // Debug: Log first coin to see data structure
+  if (displayCoins.length > 0) {
+    console.log('First coin data:', displayCoins[0]);
+  }
 
   if (!coins || coins.length === 0) {
     return (
@@ -57,14 +62,14 @@ const CoinTable = ({ coins, currentPage, totalPages }) => {
               <td className="px-6 py-4 whitespace-nowrap">
                 <Link to={`/coin/${coin.address}`} className="flex items-center">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 mr-3 flex items-center justify-center text-white font-bold text-sm">
-                    {coin.symbol?.substring(0, 2) || '??'}
+                    {(coin.symbol || coin.name || 'UNK').substring(0, 2).toUpperCase()}
                   </div>
                   <div>
                     <div className="font-medium text-gray-900 dark:text-white">
-                      {coin.name}
+                      {coin.name || 'Unknown Token'}
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">
-                      {coin.symbol}
+                      {coin.symbol || 'UNK'}
                     </div>
                   </div>
                 </Link>
