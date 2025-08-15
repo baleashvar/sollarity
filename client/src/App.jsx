@@ -4,7 +4,7 @@ import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import DonationWidget from './components/DonationWidget';
-import ErrorBoundary from './components/ErrorBoundary';
+import ErrorBoundary from './components/ui/ErrorBoundary';
 
 import Dashboard from './pages/Dashboard';
 import CoinDetail from './pages/CoinDetail';
