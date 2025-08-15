@@ -6,6 +6,8 @@ export const usePhantomWallet = () => {
   const [connecting, setConnecting] = useState(false);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const phantom = window.solana;
     if (phantom?.isPhantom) {
       setWallet(phantom);

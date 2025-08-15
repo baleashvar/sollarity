@@ -4,6 +4,8 @@ const TradingViewChart = ({ symbol, address }) => {
   const containerRef = useRef();
 
   useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
+
     // Clear previous widget
     if (containerRef.current) {
       containerRef.current.innerHTML = '';
@@ -14,7 +16,8 @@ const TradingViewChart = ({ symbol, address }) => {
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
     script.type = 'text/javascript';
     script.async = true;
-    script.innerHTML = JSON.stringify({
+    // Use textContent instead of innerHTML to avoid accidental HTML parsing
+    script.textContent = JSON.stringify({
       autosize: true,
       symbol: `CRYPTO:${symbol}USD`,
       interval: '15',

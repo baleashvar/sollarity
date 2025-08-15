@@ -41,7 +41,7 @@ class ErrorBoundary extends React.Component {
             {stack ? <p><strong>Stack:</strong> {stack}</p> : <p><em>No component stack available.</em></p>}
           </details>
           <button 
-            onClick={() => window.location.reload()} 
+            onClick={() => { if (typeof window !== 'undefined') window.location.reload(); }} 
             style={{
               marginTop: '10px',
               padding: '8px 16px',

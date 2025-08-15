@@ -83,7 +83,7 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
                   onClick={() => {
                     safeRemoveItem('token');
                     safeRemoveItem('user');
-                    window.location.reload();
+                    if (typeof window !== 'undefined') window.location.reload();
                   }}
                   className="text-sm text-red-600 hover:text-red-800"
                 >
