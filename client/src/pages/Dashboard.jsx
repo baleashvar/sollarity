@@ -11,6 +11,7 @@ import SEOHead from '../components/SEO/SEOHead';
 import PersonalizedDashboard from '../components/wallet/PersonalizedDashboard';
 import { getCoins } from '../services/api';
 import { getPremiumLimits } from '../utils/premiumUtils';
+import { safeGetJSON } from '../utils/storage';
 
 const Dashboard = () => {
   const [searchParams] = useSearchParams();
@@ -44,7 +45,7 @@ const Dashboard = () => {
       const data = await getCoins(page, filters);
       
       if (data && data.coins) {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const user = safeGetJSON('user', {});
         const premiumText = user.isPremium ? ' (Premium: 50/page)' : ' (Free: 20/page)';
         console.log(`Received ${data.coins.length} coins from API. Total: ${data.total}${premiumText}`);
         setCoins(data.coins);

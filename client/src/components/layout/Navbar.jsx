@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { safeGetJSON, safeRemoveItem } from '../../utils/storage';
 
 const Navbar = ({ darkMode, toggleDarkMode }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -70,18 +71,18 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
           
           <div className="flex items-center space-x-4">
             {/* User Menu */}
-            {localStorage.getItem('user') ? (
+            {safeGetJSON('user') ? (
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-700 dark:text-gray-300">
-                  {JSON.parse(localStorage.getItem('user')).username}
-                  {JSON.parse(localStorage.getItem('user')).isPremium && (
+                  {safeGetJSON('user').username}
+                  {safeGetJSON('user').isPremium && (
                     <span className="ml-1 bg-yellow-500 text-white px-2 py-0.5 rounded text-xs">PRO</span>
                   )}
                 </span>
                 <button
                   onClick={() => {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
+                    safeRemoveItem('token');
+                    safeRemoveItem('user');
                     window.location.reload();
                   }}
                   className="text-sm text-red-600 hover:text-red-800"

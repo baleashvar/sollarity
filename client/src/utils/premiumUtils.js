@@ -1,3 +1,5 @@
+import { safeGetJSON, safeSetJSON } from './storage';
+
 /**
  * Premium user utilities
  */
@@ -5,14 +7,14 @@
 export const isPremiumUser = () => {
   // Temporarily disabled paywall - everyone is premium for testing
   return true;
-  // const user = JSON.parse(localStorage.getItem('user') || '{}');
+  // const user = safeGetJSON('user', {});
   // return user.isPremium || false;
 };
 
 export const setPremiumStatus = (isPremium) => {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const user = safeGetJSON('user', {});
   user.isPremium = isPremium;
-  localStorage.setItem('user', JSON.stringify(user));
+  safeSetJSON('user', user);
 };
 
 export const getPremiumLimits = () => {
