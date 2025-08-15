@@ -190,7 +190,6 @@ const Dashboard = () => {
         
         <div className="space-y-6">
           <PersonalizedDashboard />
-          <PersonalizedDashboard />
           <TrendingCoins />
           <SafeCoins />
           <ScamAlerts />
