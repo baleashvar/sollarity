@@ -7,19 +7,25 @@ class ErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true };
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true, error };
   }
 
   componentDidCatch(error, errorInfo) {
+    // Save error info for display / logging if available
     this.setState({
       error: error,
-      errorInfo: errorInfo
+      errorInfo: errorInfo || null
     });
     console.error('Error caught by boundary:', error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
+      const stack = this.state.errorInfo && this.state.errorInfo.componentStack
+        ? this.state.errorInfo.componentStack
+        : null;
+
       return (
         <div style={{ 
           padding: '20px', 
@@ -31,8 +37,8 @@ class ErrorBoundary extends React.Component {
           <h2 style={{ color: '#c00' }}>Something went wrong!</h2>
           <details style={{ whiteSpace: 'pre-wrap', marginTop: '10px' }}>
             <summary>Error Details (click to expand)</summary>
-            <p><strong>Error:</strong> {this.state.error && this.state.error.toString()}</p>
-            <p><strong>Stack:</strong> {this.state.errorInfo.componentStack}</p>
+            <p><strong>Error:</strong> {this.state.error ? this.state.error.toString() : 'Unknown'}</p>
+            {stack ? <p><strong>Stack:</strong> {stack}</p> : <p><em>No component stack available.</em></p>}
           </details>
           <button 
             onClick={() => window.location.reload()} 
