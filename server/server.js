@@ -203,6 +203,8 @@ app.use('/api/moralis', require('./routes/moralis'));
 app.use('/api/alerts', require('./routes/alerts'));
 app.use('/api/whales', require('./routes/whales'));
 app.use('/api/telegram', require('./routes/telegram'));
+// Aggregator route
+app.use('/api/aggregator', require('./routes/aggregator'));
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
