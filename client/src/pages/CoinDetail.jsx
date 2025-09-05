@@ -442,6 +442,18 @@ const CoinDetail = () => {
                 Discord
               </a>
             )}
+            {/* Binance referral button */}
+            <a
+              href="https://www.binance.com/referral/earn-together/refer-in-hotsummer/claim?hl=en&ref=GRO_20338_QURAF&utm_source=default"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-3 py-1.5 border border-yellow-400 rounded-md text-sm font-medium text-yellow-700 bg-yellow-50 hover:bg-yellow-100"
+            >
+              <svg className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2l3 6 6 .5-4.5 3.5L19 20l-7-4-7 4 1.5-8.5L3 8.5 9 8 12 2z" fill="currentColor" />
+              </svg>
+              Buy on Binance
+            </a>
           </div>
         </div>
       ) : null}
