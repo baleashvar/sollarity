@@ -5,7 +5,7 @@ import { getPremiumLimits } from '../utils/premiumUtils';
 import DexScreenerChart from '../components/charts/DexScreenerChart';
 import TradingViewChart from '../components/charts/TradingViewChart';
 import LivePrice from '../components/ui/LivePrice';
-import EnhancedRiskPanel from '../components/analysis/EnhancedRiskPanel';
+
 
 
 const CoinDetail = () => {
@@ -320,7 +320,7 @@ const CoinDetail = () => {
           </div>
         </div>
 
-        <EnhancedRiskPanel tokenAddress={address} />
+
 
         {/* Trading Actions */}
         <div className="mb-6">
@@ -334,9 +334,6 @@ const CoinDetail = () => {
               rel="noopener noreferrer"
               className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
             >
-              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2l3 6 6 .5-4.5 3.5L19 20l-7-4-7 4 1.5-8.5L3 8.5 9 8 12 2z" />
-              </svg>
               Buy on Jupiter
             </a>
             <a
@@ -345,9 +342,6 @@ const CoinDetail = () => {
               rel="noopener noreferrer"
               className="inline-flex items-center px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
             >
-              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2l3 6 6 .5-4.5 3.5L19 20l-7-4-7 4 1.5-8.5L3 8.5 9 8 12 2z" />
-              </svg>
               Buy on Binance
             </a>
           </div>

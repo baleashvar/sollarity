@@ -45,9 +45,7 @@ const CoinTable = ({ coins, currentPage, totalPages }) => {
             <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b-2 border-gray-200 dark:border-gray-600">
               Market Cap
             </th>
-            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b-2 border-gray-200 dark:border-gray-600">
-              Liquidity
-            </th>
+
             <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border-b-2 border-gray-200 dark:border-gray-600">
               Risk
             </th>
@@ -91,20 +89,7 @@ const CoinTable = ({ coins, currentPage, totalPages }) => {
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
                 {formatCurrency(coin.marketCap || 0)}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
-                <div className="flex justify-end items-center">
-                  {coin.liquidityUSD === null || coin.liquidityUSD === undefined ? (
-                    <span className="text-gray-500 dark:text-gray-400 italic">Data not available</span>
-                  ) : (
-                    formatCurrency(coin.liquidityUSD || 0)
-                  )}
-                  {coin.lpBurned && (
-                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
-                      LP Burned
-                    </span>
-                  )}
-                </div>
-              </td>
+
               <td className="px-6 py-4 whitespace-nowrap text-center">
                 <div className="flex justify-center">
                   <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
