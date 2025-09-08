@@ -4,6 +4,8 @@
   "name": "Sollarity",
   "description": "Solana memecoin analysis platform with real-time data, scam detection, and holder analytics",
   "url": "https://sollarity.xyz",
+  "image": "https://sollarity.xyz/sollarity_thumbnail.png",
+  "logo": "https://sollarity.xyz/sollarity_thumbnail.png",
   "applicationCategory": "FinanceApplication",
   "operatingSystem": "Web Browser",
   "offers": {

@@ -3,17 +3,17 @@
   "name": "Sollarity - Solana Memecoin Analysis",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "sollarity_thumbnail.png",
+      "type": "image/png",
+      "sizes": "256x256"
     },
     {
-      "src": "logo192.png",
+      "src": "sollarity_thumbnail.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "logo512.png",
+      "src": "sollarity_thumbnail.png",
       "type": "image/png",
       "sizes": "512x512"
     }

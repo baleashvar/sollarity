@@ -25,6 +25,16 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// Serve static files from client/public
+app.use(express.static(path.join(__dirname, '..', 'client', 'public')));
+
+// Special route for thumbnail with proper headers for social media
+app.get('/sollarity_thumbnail.png', (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=31536000');
+  res.setHeader('Content-Type', 'image/png');
+  res.sendFile(path.join(__dirname, '..', 'client', 'public', 'sollarity_thumbnail.png'));
+});
+
 // Session middleware for CSRF protection
 app.use(session({
   secret: process.env.SESSION_SECRET || 'sollarity_session_secret',

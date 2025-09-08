@@ -1,5 +1,7 @@
 # Sollarity
 
+![Sollarity Logo](./sollarity_thumbnail.png)
+
 A comprehensive Solana memecoin analysis platform with automated data collection, scam detection, and backup systems.
 
 ## Features
