@@ -216,6 +216,21 @@ app.use('/api/telegram', require('./routes/telegram'));
 // Aggregator route
 app.use('/api/aggregator', require('./routes/aggregator'));
 
+// Get total coin count for marketing
+app.get('/api/stats', async (req, res) => {
+  try {
+    const totalCoins = await Coin.countDocuments();
+    const activeCoins = await Coin.countDocuments({ marketCap: { $gt: 1000 } });
+    res.json({ 
+      totalCoins, 
+      activeCoins,
+      lastUpdated: new Date()
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
